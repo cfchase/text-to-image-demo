@@ -26,7 +26,7 @@
                 },
                 {
                   "env_var": "PROMPT",
-                  "value": "a red hat"
+                  "value": "photo of a redhat dog"
                 },
                 {
                   "env_var": "NEGATIVE_PROMPT"
@@ -286,13 +286,13 @@
           "name": "finetune-generate-upload",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_pod_labels": [],
+            "mounted_volumes": [],
+            "kubernetes_pod_annotations": [],
             "kubernetes_tolerations": [],
+            "kubernetes_pod_labels": [],
             "kubernetes_shared_mem_size": {
               "size": 4
             },
-            "mounted_volumes": [],
-            "kubernetes_pod_annotations": [],
             "env_vars": [],
             "kubernetes_secrets": [],
             "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
