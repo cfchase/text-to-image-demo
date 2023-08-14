@@ -21,11 +21,12 @@
               ],
               "env_vars": [
                 {
-                  "env_var": "WEIGHTS_DIR"
+                  "env_var": "WEIGHTS_DIR",
+                  "value": "weights.tar.gz"
                 },
                 {
                   "env_var": "PROMPT",
-                  "value": "picture of a dog"
+                  "value": "a red hat"
                 },
                 {
                   "env_var": "NEGATIVE_PROMPT"
@@ -65,8 +66,8 @@
             "ui_data": {
               "label": "generate.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
-              "x_pos": 233,
-              "y_pos": 370,
+              "x_pos": 245,
+              "y_pos": 373,
               "description": "Run notebook file"
             }
           },
@@ -81,7 +82,14 @@
                   },
                   "label": "Input Port"
                 }
-              }
+              },
+              "links": [
+                {
+                  "id": "8eed35cb-51a6-40c0-a204-dfe7f26a8223",
+                  "node_id_ref": "082d7b10-c630-46be-a13e-56080b49e879",
+                  "port_id_ref": "outPort"
+                }
+              ]
             }
           ],
           "outputs": [
@@ -156,8 +164,8 @@
             "ui_data": {
               "label": "upload-file.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
-              "x_pos": 556,
-              "y_pos": 369,
+              "x_pos": 508,
+              "y_pos": 373,
               "description": "Run notebook file"
             }
           },
@@ -196,6 +204,76 @@
               }
             }
           ]
+        },
+        {
+          "id": "082d7b10-c630-46be-a13e-56080b49e879",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "dependencies": [
+                "convert_diffusers_to_original_stable_diffusion.py",
+                "train_dreambooth.py"
+              ],
+              "include_subdirectories": false,
+              "outputs": [
+                "weights.tar.gz"
+              ],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {
+                "size": 4
+              },
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu ",
+                  "operator": "Exists",
+                  "effect": "NoSchedule"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "finetune.ipynb",
+              "gpu": 1
+            },
+            "label": "",
+            "ui_data": {
+              "label": "finetune.ipynb",
+              "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
+              "x_pos": -26.999998092651367,
+              "y_pos": 371,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         }
       ],
       "app_data": {
@@ -205,18 +283,18 @@
         "version": 8,
         "runtime_type": "KUBEFLOW_PIPELINES",
         "properties": {
-          "name": "generate-upload",
+          "name": "finetune-generate-upload",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
             "kubernetes_shared_mem_size": {
               "size": 4
             },
             "mounted_volumes": [],
-            "kubernetes_tolerations": [],
-            "kubernetes_pod_labels": [],
             "kubernetes_pod_annotations": [],
-            "kubernetes_secrets": [],
             "env_vars": [],
+            "kubernetes_secrets": [],
             "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
           }
         }
