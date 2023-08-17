@@ -25,7 +25,7 @@
                 },
                 {
                   "env_var": "PROMPT",
-                  "value": "picture of a dog"
+                  "value": "photo of a dog"
                 },
                 {
                   "env_var": "NEGATIVE_PROMPT"
@@ -65,8 +65,8 @@
             "ui_data": {
               "label": "generate.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
-              "x_pos": 233,
-              "y_pos": 370,
+              "x_pos": 234,
+              "y_pos": 369,
               "description": "Run notebook file"
             }
           },
@@ -115,7 +115,7 @@
                 },
                 {
                   "env_var": "S3_KEY",
-                  "value": "generated-images.tar.gz"
+                  "value": "dogs.tar.gz"
                 }
               ],
               "kubernetes_pod_annotations": [],
@@ -208,15 +208,15 @@
           "name": "generate-upload",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
+            "mounted_volumes": [],
+            "kubernetes_pod_annotations": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_pod_labels": [],
             "kubernetes_shared_mem_size": {
               "size": 4
             },
-            "mounted_volumes": [],
-            "kubernetes_tolerations": [],
-            "kubernetes_pod_labels": [],
-            "kubernetes_pod_annotations": [],
-            "kubernetes_secrets": [],
             "env_vars": [],
+            "kubernetes_secrets": [],
             "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
           }
         }
