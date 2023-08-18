@@ -21,11 +21,12 @@
               ],
               "env_vars": [
                 {
-                  "env_var": "WEIGHTS_DIR"
+                  "env_var": "WEIGHTS_DIR",
+                  "value": "weights.tar"
                 },
                 {
                   "env_var": "PROMPT",
-                  "value": "photo of a dog"
+                  "value": "photo of a rhteddy dog"
                 },
                 {
                   "env_var": "NEGATIVE_PROMPT"
@@ -65,8 +66,8 @@
             "ui_data": {
               "label": "generate.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
-              "x_pos": 234,
-              "y_pos": 369,
+              "x_pos": 245,
+              "y_pos": 372,
               "description": "Run notebook file"
             }
           },
@@ -81,7 +82,14 @@
                   },
                   "label": "Input Port"
                 }
-              }
+              },
+              "links": [
+                {
+                  "id": "8eed35cb-51a6-40c0-a204-dfe7f26a8223",
+                  "node_id_ref": "082d7b10-c630-46be-a13e-56080b49e879",
+                  "port_id_ref": "outPort"
+                }
+              ]
             }
           ],
           "outputs": [
@@ -115,7 +123,7 @@
                 },
                 {
                   "env_var": "S3_KEY",
-                  "value": "dogs.tar"
+                  "value": "generated-images.tar"
                 }
               ],
               "kubernetes_pod_annotations": [],
@@ -156,8 +164,8 @@
             "ui_data": {
               "label": "upload-file.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
-              "x_pos": 556,
-              "y_pos": 369,
+              "x_pos": 508,
+              "y_pos": 373,
               "description": "Run notebook file"
             }
           },
@@ -196,6 +204,73 @@
               }
             }
           ]
+        },
+        {
+          "id": "082d7b10-c630-46be-a13e-56080b49e879",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [
+                "weights.tar"
+              ],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {
+                "size": 4
+              },
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu ",
+                  "operator": "Exists",
+                  "effect": "NoSchedule"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "fine_tuning_optimized.ipynb",
+              "gpu": 1
+            },
+            "label": "",
+            "ui_data": {
+              "label": "fine_tuning_optimized.ipynb",
+              "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
+              "x_pos": -26.999998092651367,
+              "y_pos": 371,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
         }
       ],
       "app_data": {
@@ -205,7 +280,7 @@
         "version": 8,
         "runtime_type": "KUBEFLOW_PIPELINES",
         "properties": {
-          "name": "generate-upload",
+          "name": "finetune-optimized",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
             "kubernetes_shared_mem_size": {

@@ -17,16 +17,16 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [
-                "generated-images.tar.gz"
+                "generated-images.tar"
               ],
               "env_vars": [
                 {
                   "env_var": "WEIGHTS_DIR",
-                  "value": "weights.tar.gz"
+                  "value": "weights.tar"
                 },
                 {
                   "env_var": "PROMPT",
-                  "value": "photo of a redhat dog"
+                  "value": "photo of a rhteddy dog"
                 },
                 {
                   "env_var": "NEGATIVE_PROMPT"
@@ -119,11 +119,11 @@
               "env_vars": [
                 {
                   "env_var": "FILE_PATH",
-                  "value": "generated-images.tar.gz"
+                  "value": "generated-images.tar"
                 },
                 {
                   "env_var": "S3_KEY",
-                  "value": "generated-images.tar.gz"
+                  "value": "generated-images.tar"
                 }
               ],
               "kubernetes_pod_annotations": [],
@@ -211,20 +211,17 @@
           "op": "execute-notebook-node",
           "app_data": {
             "component_parameters": {
-              "dependencies": [
-                "convert_diffusers_to_original_stable_diffusion.py",
-                "train_dreambooth.py"
-              ],
+              "dependencies": [],
               "include_subdirectories": false,
               "outputs": [
-                "weights.tar.gz"
+                "weights.tar"
               ],
               "env_vars": [],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
               "kubernetes_shared_mem_size": {
-                "size": 4
+                "size": 2
               },
               "kubernetes_tolerations": [
                 {
@@ -286,13 +283,13 @@
           "name": "finetune-generate-upload",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
+            "kubernetes_shared_mem_size": {
+              "size": 2
+            },
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
             "mounted_volumes": [],
             "kubernetes_pod_annotations": [],
-            "kubernetes_tolerations": [],
-            "kubernetes_pod_labels": [],
-            "kubernetes_shared_mem_size": {
-              "size": 4
-            },
             "env_vars": [],
             "kubernetes_secrets": [],
             "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
