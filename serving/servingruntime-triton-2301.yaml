@@ -1,0 +1,95 @@
+﻿apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    enable-auth: 'false'
+    enable-route: 'false'
+    maxLoadingConcurrency: '2'
+    opendatahub.io/template-display-name: Triton runtime 23.01 - added on 20230815
+    opendatahub.io/template-name: tritonserver-23.01-py3-20230815
+    openshift.io/display-name: Triton 23.01
+  name: triton-2301
+  labels:
+    name: triton-2301
+    opendatahub.io/dashboard: 'true'
+spec:
+  supportedModelFormats:
+    - autoSelect: true
+      name: keras
+      version: '2'
+    - autoSelect: true
+      name: onnx
+      version: '1'
+    - autoSelect: true
+      name: pytorch
+      version: '1'
+    - autoSelect: true
+      name: tensorflow
+      version: '1'
+    - autoSelect: true
+      name: python
+      version: '1'
+    - autoSelect: true
+      name: tensorrt
+      version: '7'
+    - autoSelect: true
+      name: bls
+      version: '1'
+    - autoSelect: true
+      name: ensemble
+      version: '1'
+    - autoSelect: true
+      name: fil
+      version: '1'
+  builtInAdapter:
+    memBufferBytes: 134217728
+    modelLoadingTimeoutMillis: 90000
+    runtimeManagementPort: 8001
+    serverType: triton
+  multiModel: true
+  containers:
+    - args:
+        - '-c'
+        - >-
+          mkdir -p /models/_triton_models; chmod 777 /models/_triton_models;
+          exec tritonserver "--model-repository=/models/_triton_models"
+          "--model-control-mode=explicit" "--strict-model-config=false"
+          "--strict-readiness=false" "--allow-http=true"
+          "--allow-sagemaker=false"
+      command:
+        - /bin/sh
+      image: 'nvcr.io/nvidia/tritonserver:23.01-py3'
+      livenessProbe:
+        exec:
+          command:
+            - curl
+            - '--fail'
+            - '--silent'
+            - '--show-error'
+            - '--max-time'
+            - '9'
+            - 'http://localhost:8000/v2/health/live'
+        initialDelaySeconds: 5
+        periodSeconds: 30
+        timeoutSeconds: 10
+      name: triton
+      resources:
+        limits:
+          cpu: '2'
+          memory: 8Gi
+        requests:
+          cpu: '1'
+          memory: 4Gi
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+  protocolVersions:
+    - grpc-v2
+  grpcEndpoint: 'port:8085'
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2048Mi
+      name: dshm
+  replicas: 1
+  grpcDataEndpoint: 'port:8001'
