@@ -75,11 +75,13 @@ spec:
       name: triton
       resources:
         limits:
-          cpu: '2'
-          memory: 8Gi
+          cpu: '4'
+          memory: 16Gi
+          nvidia.com/gpu: 1
         requests:
           cpu: '1'
-          memory: 4Gi
+          memory: 8Gi
+          nvidia.com/gpu: 1
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
