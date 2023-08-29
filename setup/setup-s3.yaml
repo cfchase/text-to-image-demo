@@ -115,11 +115,11 @@ spec:
           protocol: TCP
         resources:
           limits:
-            cpu: "2"
-            memory: 2Gi
+            cpu: "4"
+            memory: 6Gi
           requests:
-            cpu: 200m
-            memory: 1Gi
+            cpu: "1"
+            memory: 2Gi
         volumeMounts:
         - mountPath: /data
           name: minio
