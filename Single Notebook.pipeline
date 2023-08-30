@@ -17,21 +17,30 @@
               "dependencies": [],
               "include_subdirectories": false,
               "outputs": [],
-              "env_vars": [],
+              "env_vars": [
+                {
+                  "env_var": "GPU_ONNX_EXPORT",
+                  "value": "FALSE"
+                }
+              ],
               "kubernetes_pod_annotations": [],
               "kubernetes_pod_labels": [],
               "kubernetes_secrets": [],
               "kubernetes_shared_mem_size": {},
               "kubernetes_tolerations": [],
               "mounted_volumes": [],
-              "filename": "2_fine_tuning.ipynb"
+              "filename": "2_fine_tuning.ipynb",
+              "cpu": 4,
+              "gpu_vendor": "nvidia.com/gpu",
+              "memory": 16,
+              "gpu": 1
             },
             "label": "",
             "ui_data": {
               "label": "2_fine_tuning.ipynb",
               "image": "/notebook/chris-chase-text-to-image/text-to-image/static/elyra/notebook.svg",
               "x_pos": 178,
-              "y_pos": 270,
+              "y_pos": 269,
               "description": "Run notebook file"
             }
           },
@@ -75,12 +84,18 @@
           "name": "Single Notebook",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_pod_annotations": [],
             "kubernetes_pod_labels": [],
             "mounted_volumes": [],
-            "kubernetes_tolerations": [],
+            "kubernetes_tolerations": [
+              {
+                "key": "nvidia.com/gpu",
+                "operator": "Exists",
+                "effect": "NoSchedule"
+              }
+            ],
+            "kubernetes_pod_annotations": [],
             "kubernetes_shared_mem_size": {
-              "size": 4
+              "size": 16
             },
             "kubernetes_secrets": [
               {
@@ -112,11 +127,12 @@
             "env_vars": [
               {
                 "env_var": "VERSION",
-                "value": "custom-pipeline"
+                "value": "pipeline-output"
               }
             ],
             "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
-          }
+          },
+          "pipeline_parameters": []
         }
       },
       "runtime_ref": ""
