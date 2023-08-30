@@ -17,5 +17,5 @@ spec:
       runtime: triton-2301
       storage:
         key: aws-connection-my-storage
-        path: text-to-image/custom/onnx-redhat-dog/unet
+        path: text-to-image/notebook-output/onnx-redhat-dog/unet
 
