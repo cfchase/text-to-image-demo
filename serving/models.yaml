@@ -8,10 +8,10 @@ metadata:
     maxLoadingConcurrency: '2'
     opendatahub.io/template-display-name: Triton runtime 23.01 - added on 20230815
     opendatahub.io/template-name: tritonserver-23.01-py3-20230815
-    openshift.io/display-name: Triton 23.01
-  name: triton-2301
+    openshift.io/display-name: Custom Model Server
+  name: custom-model-server
   labels:
-    name: triton-2301
+    name: custom-model-server
     opendatahub.io/dashboard: 'true'
 spec:
   supportedModelFormats:
@@ -114,7 +114,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: triton-2301
+      runtime: custom-model-server
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/text_encoder
@@ -136,7 +136,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: triton-2301
+      runtime: custom-model-server
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/unet
@@ -158,7 +158,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: triton-2301
+      runtime: custom-model-server
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/vae_decoder
@@ -180,7 +180,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: triton-2301
+      runtime: custom-model-server
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/vae_encoder
