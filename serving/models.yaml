@@ -1,4 +1,5 @@
-﻿apiVersion: serving.kserve.io/v1alpha1
+---
+apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
   annotations:
@@ -95,3 +96,91 @@ spec:
       name: dshm
   replicas: 1
   grpcDataEndpoint: 'port:8001'
+
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: text_encoder
+    serving.kserve.io/deploymentMode: ModelMesh
+  name: textencoder
+  labels:
+    name: textencoder
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: onnx
+        version: '1'
+      runtime: triton-2301
+      storage:
+        key: aws-connection-my-storage
+        path: text-to-image/notebook-output/onnx-redhat-dog/text_encoder
+
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: unet
+    serving.kserve.io/deploymentMode: ModelMesh
+  name: unet
+  labels:
+    name: unet
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: onnx
+        version: '1'
+      runtime: triton-2301
+      storage:
+        key: aws-connection-my-storage
+        path: text-to-image/notebook-output/onnx-redhat-dog/unet
+
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: vae_decoder
+    serving.kserve.io/deploymentMode: ModelMesh
+  name: vaedecoder
+  labels:
+    name: vaedecoder
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: onnx
+        version: '1'
+      runtime: triton-2301
+      storage:
+        key: aws-connection-my-storage
+        path: text-to-image/notebook-output/onnx-redhat-dog/vae_decoder
+
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: vae_encoder
+    serving.kserve.io/deploymentMode: ModelMesh
+  name: vaeencoder
+  labels:
+    name: vaeencoder
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: onnx
+        version: '1'
+      runtime: triton-2301
+      storage:
+        key: aws-connection-my-storage
+        path: text-to-image/notebook-output/onnx-redhat-dog/vae_encoder
