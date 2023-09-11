@@ -387,17 +387,17 @@
         "version": 8,
         "runtime_type": "KUBEFLOW_PIPELINES",
         "properties": {
-          "name": "untitled",
+          "name": "3_Finetune_Text_to_Image",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_pod_annotations": [],
-            "kubernetes_pod_labels": [],
-            "mounted_volumes": [],
             "kubernetes_tolerations": [],
+            "mounted_volumes": [],
+            "kubernetes_pod_annotations": [],
             "kubernetes_shared_mem_size": {},
-            "kubernetes_secrets": [],
+            "kubernetes_pod_labels": [],
             "env_vars": [],
-            "runtime_image": "quay.io/modh/runtime-images@sha256:1dc49192f80f99baf4a1059a6657799433172a25932751f4ab879911e931281c"
+            "kubernetes_secrets": [],
+            "runtime_image": "quay.io/modh/runtime-images@sha256:7dd23e58291cad7a0ab4a8e04bda06492f2c027eb33b226358380db58dcdd60b"
           }
         }
       },
