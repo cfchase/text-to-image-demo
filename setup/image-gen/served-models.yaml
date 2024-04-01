@@ -3,15 +3,15 @@ apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
   annotations:
-    enable-auth: 'false'
-    enable-route: 'false'
     maxLoadingConcurrency: '2'
-    opendatahub.io/template-display-name: Triton runtime 23.01 - added on 20230815
-    opendatahub.io/template-name: tritonserver-23.01-py3-20230815
-    openshift.io/display-name: Custom Model Server
-  name: custom-model-server
+    opendatahub.io/accelerator-name: migrated-gpu
+    opendatahub.io/template-display-name: Triton runtime 24.01
+    opendatahub.io/template-name: tritonserver-24.01-py3
+    openshift.io/display-name: NVIDIA Triton
+  name: nvidia-triton
+  namespace: image-generation
   labels:
-    name: custom-model-server
+    name: tritonserver-24.01-py3
     opendatahub.io/dashboard: 'true'
 spec:
   supportedModelFormats:
@@ -28,38 +28,24 @@ spec:
       name: tensorflow
       version: '1'
     - autoSelect: true
-      name: python
-      version: '1'
+      name: tensorflow
+      version: '2'
     - autoSelect: true
       name: tensorrt
       version: '7'
-    - autoSelect: true
-      name: bls
-      version: '1'
-    - autoSelect: true
-      name: ensemble
-      version: '1'
-    - autoSelect: true
-      name: fil
-      version: '1'
   builtInAdapter:
     memBufferBytes: 134217728
-    modelLoadingTimeoutMillis: 90000
+    modelLoadingTimeoutMillis: 360000
     runtimeManagementPort: 8001
     serverType: triton
   multiModel: true
   containers:
     - args:
         - '-c'
-        - >-
-          mkdir -p /models/_triton_models; chmod 777 /models/_triton_models;
-          exec tritonserver "--model-repository=/models/_triton_models"
-          "--model-control-mode=explicit" "--strict-model-config=false"
-          "--strict-readiness=false" "--allow-http=true"
-          "--allow-sagemaker=false"
+        - mkdir -p /models/_triton_models; chmod 777 /models/_triton_models; exec tritonserver "--model-repository=/models/_triton_models" "--model-control-mode=explicit" "--strict-model-config=false" "--strict-readiness=false" "--allow-http=true" "--allow-sagemaker=false"
       command:
         - /bin/sh
-      image: 'nvcr.io/nvidia/tritonserver:23.01-py3'
+      image: 'nvcr.io/nvidia/tritonserver:24.01-py3'
       livenessProbe:
         exec:
           command:
@@ -76,25 +62,29 @@ spec:
       name: triton
       resources:
         limits:
-          cpu: '4'
-          memory: 16Gi
+          cpu: '8'
+          memory: 24Gi
           nvidia.com/gpu: 1
         requests:
           cpu: '1'
-          memory: 8Gi
+          memory: 16Gi
           nvidia.com/gpu: 1
       volumeMounts:
         - mountPath: /dev/shm
-          name: dshm
+          name: shm
   protocolVersions:
     - grpc-v2
   grpcEndpoint: 'port:8085'
   volumes:
     - emptyDir:
         medium: Memory
-        sizeLimit: 2048Mi
-      name: dshm
+        sizeLimit: 2Gi
+      name: shm
   replicas: 1
+  tolerations:
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      operator: Exists
   grpcDataEndpoint: 'port:8001'
 
 ---
@@ -114,7 +104,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: custom-model-server
+      runtime: nvidia-triton
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/text_encoder
@@ -136,7 +126,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: custom-model-server
+      runtime: nvidia-triton
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/unet
@@ -158,7 +148,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: custom-model-server
+      runtime: nvidia-triton
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/vae_decoder
@@ -180,7 +170,7 @@ spec:
       modelFormat:
         name: onnx
         version: '1'
-      runtime: custom-model-server
+      runtime: nvidia-triton
       storage:
         key: aws-connection-my-storage
         path: text-to-image/notebook-output/onnx-redhat-dog/vae_encoder

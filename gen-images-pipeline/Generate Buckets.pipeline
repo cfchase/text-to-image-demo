@@ -1,0 +1,699 @@
+{
+  "doc_type": "pipeline",
+  "version": "3.0",
+  "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+  "id": "elyra-auto-generated-pipeline",
+  "primary_pipeline": "primary",
+  "pipelines": [
+    {
+      "id": "primary",
+      "nodes": [
+        {
+          "id": "71030572-b163-46b8-a2af-ef73e215657d",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "bucket_prompts",
+                "negative_prompt",
+                "width",
+                "height",
+                "num_start",
+                "num_images",
+                "num_workers",
+                "aws_s3_prefix"
+              ],
+              "dependencies": [
+                "buckets-prompts.csv",
+                "buckets-prompts-short.csv"
+              ],
+              "include_subdirectories": false,
+              "outputs": [
+                "prompts_1.csv",
+                "prompts_2.csv",
+                "prompts_3.csv",
+                "prompts_4.csv",
+                "prompts_5.csv",
+                "prompts_6.csv"
+              ],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [],
+              "filename": "prep_prompt_list.ipynb"
+            },
+            "label": "prepare-data",
+            "ui_data": {
+              "label": "prepare-data",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 119,
+              "y_pos": 457,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "d3ed549f-01a2-405b-9709-78f2e5efca46",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_1.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "1-generate-images",
+            "ui_data": {
+              "label": "1-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 402,
+              "y_pos": 322,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "02c00441-5331-4642-8c65-8590af7b7983",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "a09a292f-288e-465c-bca5-0ce3394c3733",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_2.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "2-generate-images",
+            "ui_data": {
+              "label": "2-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 405,
+              "y_pos": 381,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "5bd27bff-a155-42f3-87c0-ffbfa79b167f",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "d8bdc943-725a-4c24-b7e9-dae66ec32bbb",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_3.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "3-generate-images",
+            "ui_data": {
+              "label": "3-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 406,
+              "y_pos": 439,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "5315dd4b-c584-46c5-97c9-15d99c8d1b94",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "0ae0577f-10dc-48d7-a474-dbcc8bcf37d3",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_4.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "4-generate-images",
+            "ui_data": {
+              "label": "4-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 406,
+              "y_pos": 494,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "60a4b70e-d73c-423a-bfe4-7deae5c3a287",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "21bda71e-d328-44a6-841f-05c3119ec3d4",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_5.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "5-generate-images",
+            "ui_data": {
+              "label": "5-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 407,
+              "y_pos": 541,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "0cc5e2be-5351-4039-a52d-ec5cf9758a17",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "9f2d4b2e-5245-4566-973a-cb670e9722c1",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "single_file_load",
+                "model_id"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "PROMPT_LIST",
+                  "value": "prompts_6.csv"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt_list.ipynb",
+              "gpu": 1
+            },
+            "label": "6-generate-images",
+            "ui_data": {
+              "label": "6-generate-images",
+              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "x_pos": 407,
+              "y_pos": 592,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "19322e46-00f6-4cfa-9d44-45c3ec2ebb29",
+                  "node_id_ref": "71030572-b163-46b8-a2af-ef73e215657d",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "app_data": {
+        "ui_data": {
+          "comments": []
+        },
+        "version": 8,
+        "runtime_type": "KUBEFLOW_PIPELINES",
+        "properties": {
+          "name": "Generate Buckets",
+          "runtime": "Data Science Pipelines",
+          "pipeline_defaults": {
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_shared_mem_size": {},
+            "mounted_volumes": [],
+            "kubernetes_pod_annotations": [],
+            "env_vars": [],
+            "kubernetes_secrets": [
+              {
+                "env_var": "OUTPUT_AWS_ACCESS_KEY_ID",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_ACCESS_KEY_ID"
+              },
+              {
+                "env_var": "OUTPUT_AWS_SECRET_ACCESS_KEY",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_SECRET_ACCESS_KEY"
+              },
+              {
+                "env_var": "OUTPUT_AWS_S3_ENDPOINT",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_S3_ENDPOINT"
+              },
+              {
+                "env_var": "OUTPUT_AWS_DEFAULT_REGION",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_DEFAULT_REGION"
+              },
+              {
+                "env_var": "OUTPUT_AWS_S3_BUCKET",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_S3_BUCKET"
+              }
+            ],
+            "runtime_image": "quay.io/modh/runtime-images@sha256:d4f79f0d7596cf8058b58f1c317e698781a97bfbd3b6d13daa80390742ff6eac"
+          },
+          "pipeline_parameters": [
+            {
+              "name": "bucket_prompts",
+              "description": "CSV with columns of buckets, rows of prompts",
+              "default_value": {
+                "type": "String",
+                "value": "buckets-prompts-short.csv"
+              },
+              "required": true
+            },
+            {
+              "name": "negative_prompt",
+              "description": "Blanket negative prompt for all buckets",
+              "default_value": {
+                "type": "String",
+                "value": "innapropriate, deformed, wrong, ugly"
+              },
+              "required": true
+            },
+            {
+              "name": "width",
+              "description": "",
+              "default_value": {
+                "type": "Integer",
+                "value": 1024
+              },
+              "required": true
+            },
+            {
+              "name": "height",
+              "description": "",
+              "default_value": {
+                "type": "Integer",
+                "value": 1366
+              },
+              "required": true
+            },
+            {
+              "name": "num_start",
+              "description": "First file name number e.g. 0 == 000.png",
+              "default_value": {
+                "type": "Integer",
+                "value": 0
+              },
+              "required": true
+            },
+            {
+              "name": "num_images",
+              "description": "Number of images per prompt.",
+              "default_value": {
+                "type": "Integer",
+                "value": 1
+              },
+              "required": true
+            },
+            {
+              "name": "num_workers",
+              "description": "",
+              "default_value": {
+                "type": "Integer",
+                "value": 6
+              },
+              "required": true
+            },
+            {
+              "name": "aws_s3_prefix",
+              "description": "Prefix for all generated images",
+              "default_value": {
+                "type": "String",
+                "value": "generated-images"
+              },
+              "required": true
+            },
+            {
+              "name": "model_id",
+              "description": "Model ID from Huggingface, org/model or https://url",
+              "default_value": {
+                "type": "String",
+                "value": "stabilityai/stable-diffusion-xl-base-1.0"
+              },
+              "required": true
+            },
+            {
+              "name": "single_file_load",
+              "description": "Load stable diffusion model XL from a single file (e.g. safetensors)",
+              "default_value": {
+                "type": "String",
+                "value": "False"
+              },
+              "required": true
+            }
+          ]
+        }
+      },
+      "runtime_ref": ""
+    }
+  ],
+  "schemas": []
+}
