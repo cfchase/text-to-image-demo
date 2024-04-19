@@ -25,8 +25,8 @@
                 "aws_s3_prefix"
               ],
               "dependencies": [
-                "buckets-prompts.csv",
-                "buckets-prompts-short.csv"
+                "bucket-prompts.csv",
+                "bucket-prompts-short.csv"
               ],
               "include_subdirectories": false,
               "outputs": [
@@ -49,7 +49,7 @@
             "label": "prepare-data",
             "ui_data": {
               "label": "prepare-data",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 119,
               "y_pos": 457,
               "description": "Run notebook file"
@@ -120,7 +120,7 @@
             "label": "1-generate-images",
             "ui_data": {
               "label": "1-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 402,
               "y_pos": 322,
               "description": "Run notebook file"
@@ -198,7 +198,7 @@
             "label": "2-generate-images",
             "ui_data": {
               "label": "2-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 405,
               "y_pos": 381,
               "description": "Run notebook file"
@@ -276,7 +276,7 @@
             "label": "3-generate-images",
             "ui_data": {
               "label": "3-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 406,
               "y_pos": 439,
               "description": "Run notebook file"
@@ -354,7 +354,7 @@
             "label": "4-generate-images",
             "ui_data": {
               "label": "4-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 406,
               "y_pos": 494,
               "description": "Run notebook file"
@@ -432,7 +432,7 @@
             "label": "5-generate-images",
             "ui_data": {
               "label": "5-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 407,
               "y_pos": 541,
               "description": "Run notebook file"
@@ -510,7 +510,7 @@
             "label": "6-generate-images",
             "ui_data": {
               "label": "6-generate-images",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
               "x_pos": 407,
               "y_pos": 592,
               "description": "Run notebook file"
@@ -563,11 +563,11 @@
           "name": "Generate Buckets",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_pod_labels": [],
             "kubernetes_tolerations": [],
-            "kubernetes_shared_mem_size": {},
             "mounted_volumes": [],
             "kubernetes_pod_annotations": [],
+            "kubernetes_pod_labels": [],
+            "kubernetes_shared_mem_size": {},
             "env_vars": [],
             "kubernetes_secrets": [
               {
