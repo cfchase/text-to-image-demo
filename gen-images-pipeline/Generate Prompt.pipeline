@@ -1,0 +1,221 @@
+{
+  "doc_type": "pipeline",
+  "version": "3.0",
+  "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+  "id": "elyra-auto-generated-pipeline",
+  "primary_pipeline": "primary",
+  "pipelines": [
+    {
+      "id": "primary",
+      "nodes": [
+        {
+          "id": "e0a95f6d-dcd9-42b5-a132-8b7d06e5a863",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "prompt",
+                "negative_prompt",
+                "width",
+                "height",
+                "num_start",
+                "num_images",
+                "aws_s3_prefix",
+                "model_id",
+                "single_file_load"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists",
+                  "effect": "NoSchedule"
+                }
+              ],
+              "mounted_volumes": [],
+              "filename": "gen_prompt.ipynb",
+              "gpu_vendor": "nvidia.com/gpu",
+              "gpu": 1
+            },
+            "label": "",
+            "ui_data": {
+              "label": "gen_prompt.ipynb",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
+              "x_pos": 176,
+              "y_pos": 306,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "app_data": {
+        "ui_data": {
+          "comments": []
+        },
+        "version": 8,
+        "runtime_type": "KUBEFLOW_PIPELINES",
+        "properties": {
+          "name": "Generate Prompt",
+          "runtime": "Data Science Pipelines",
+          "pipeline_defaults": {
+            "kubernetes_shared_mem_size": {},
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_pod_annotations": [],
+            "mounted_volumes": [],
+            "env_vars": [],
+            "kubernetes_secrets": [
+              {
+                "env_var": "OUTPUT_AWS_ACCESS_KEY_ID",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_ACCESS_KEY_ID"
+              },
+              {
+                "env_var": "OUTPUT_AWS_SECRET_ACCESS_KEY",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_SECRET_ACCESS_KEY"
+              },
+              {
+                "env_var": "OUTPUT_AWS_S3_ENDPOINT",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_S3_ENDPOINT"
+              },
+              {
+                "env_var": "OUTPUT_AWS_DEFAULT_REGION",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_DEFAULT_REGION"
+              },
+              {
+                "env_var": "OUTPUT_AWS_S3_BUCKET",
+                "name": "aws-connection-my-storage",
+                "key": "AWS_S3_BUCKET"
+              }
+            ],
+            "runtime_image": "quay.io/modh/runtime-images@sha256:8a498803e4d605f20427fdb4814479ea5b51b4eb14010d181badd4f49cc72d88"
+          },
+          "pipeline_parameters": [
+            {
+              "name": "prompt",
+              "description": "Your text to generate an image",
+              "default_value": {
+                "type": "String",
+                "value": "a photo of the beach"
+              },
+              "required": true
+            },
+            {
+              "name": "negative_prompt",
+              "description": "Blanket negative prompt for all buckets",
+              "default_value": {
+                "type": "String",
+                "value": "innapropriate, deformed, wrong, ugly"
+              },
+              "required": true
+            },
+            {
+              "name": "width",
+              "description": "",
+              "default_value": {
+                "type": "Integer",
+                "value": 1024
+              },
+              "required": true
+            },
+            {
+              "name": "height",
+              "description": "",
+              "default_value": {
+                "type": "Integer",
+                "value": 1024
+              },
+              "required": true
+            },
+            {
+              "name": "num_start",
+              "description": "First file name number e.g. 0 == 000.png",
+              "default_value": {
+                "type": "Integer",
+                "value": 0
+              },
+              "required": true
+            },
+            {
+              "name": "num_images",
+              "description": "Number of images per prompt.",
+              "default_value": {
+                "type": "Integer",
+                "value": 1
+              },
+              "required": true
+            },
+            {
+              "name": "aws_s3_prefix",
+              "description": "Prefix for all generated images",
+              "default_value": {
+                "type": "String",
+                "value": "generated-images"
+              },
+              "required": true
+            },
+            {
+              "name": "model_id",
+              "description": "Model ID from Huggingface, org/model or https://url",
+              "default_value": {
+                "type": "String",
+                "value": "stabilityai/stable-diffusion-xl-base-1.0"
+              },
+              "required": true
+            },
+            {
+              "name": "single_file_load",
+              "description": "Load stable diffusion model XL from a single file (e.g. safetensors)",
+              "default_value": {
+                "type": "String",
+                "value": "False"
+              },
+              "required": true
+            }
+          ]
+        }
+      },
+      "runtime_ref": ""
+    }
+  ],
+  "schemas": []
+}

@@ -1,0 +1,386 @@
+{
+  "doc_type": "pipeline",
+  "version": "3.0",
+  "json_schema": "http://api.dataplatform.ibm.com/schemas/common-pipeline/pipeline-flow/pipeline-flow-v3-schema.json",
+  "id": "elyra-auto-generated-pipeline",
+  "primary_pipeline": "primary",
+  "pipelines": [
+    {
+      "id": "primary",
+      "nodes": [
+        {
+          "id": "125e4c00-04f4-4a80-a6bd-928cf3e7d669",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "instance_data_url"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [
+                {
+                  "env_var": "VERSION"
+                },
+                {
+                  "env_var": "MODEL_NAME"
+                },
+                {
+                  "env_var": "INSTANCE_DATA_URL"
+                },
+                {
+                  "env_var": "INSTANCE_PROMPT"
+                },
+                {
+                  "env_var": "CLASS_PROMPT"
+                },
+                {
+                  "env_var": "NUM_CLASS_IMAGES"
+                },
+                {
+                  "env_var": "MAX_TRAIN_STEPS"
+                },
+                {
+                  "env_var": "GPU_ONNX_EXPORT"
+                }
+              ],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [
+                {
+                  "path": "/opt/app-root/src/pipelines-pvc",
+                  "pvc_name": "pipelines-pvc",
+                  "read_only": false
+                }
+              ],
+              "filename": "get_data.ipynb"
+            },
+            "label": "",
+            "ui_data": {
+              "label": "get_data.ipynb",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
+              "x_pos": 87,
+              "y_pos": 294,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "7d6cb2ba-616a-40bd-835f-dda47b90c44b",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "num_class_images",
+                "max_train_steps",
+                "instance_prompt",
+                "class_prompt",
+                "model_name"
+              ],
+              "dependencies": [
+                "requirements.txt",
+                "train_dreambooth.py"
+              ],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [
+                {
+                  "key": "nvidia.com/gpu",
+                  "operator": "Exists",
+                  "effect": "NoSchedule"
+                }
+              ],
+              "mounted_volumes": [
+                {
+                  "path": "/opt/app-root/src/pipelines-pvc",
+                  "pvc_name": "pipelines-pvc",
+                  "read_only": false
+                }
+              ],
+              "filename": "train.ipynb",
+              "gpu_vendor": "nvidia.com/gpu",
+              "gpu": 1,
+              "cpu": 4,
+              "cpu_limit": 12,
+              "memory_limit": 48,
+              "memory": 12
+            },
+            "label": "",
+            "ui_data": {
+              "label": "train.ipynb",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
+              "x_pos": 351,
+              "y_pos": 293,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "492c7d08-cb7e-4abf-b04c-f70c7836dc40",
+                  "node_id_ref": "125e4c00-04f4-4a80-a6bd-928cf3e7d669",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "761e6892-1df5-4039-a7b6-03814a6d2932",
+          "type": "execution_node",
+          "op": "execute-notebook-node",
+          "app_data": {
+            "component_parameters": {
+              "pipeline_parameters": [
+                "aws_s3_prefix"
+              ],
+              "dependencies": [],
+              "include_subdirectories": false,
+              "outputs": [],
+              "env_vars": [],
+              "kubernetes_pod_annotations": [],
+              "kubernetes_pod_labels": [],
+              "kubernetes_secrets": [
+                {
+                  "env_var": "AWS_ACCESS_KEY_ID",
+                  "name": "aws-connection-my-storage",
+                  "key": "AWS_ACCESS_KEY_ID"
+                },
+                {
+                  "env_var": "AWS_SECRET_ACCESS_KEY",
+                  "name": "aws-connection-my-storage",
+                  "key": "AWS_SECRET_ACCESS_KEY"
+                },
+                {
+                  "env_var": "AWS_S3_ENDPOINT",
+                  "name": "aws-connection-my-storage",
+                  "key": "AWS_S3_ENDPOINT"
+                },
+                {
+                  "env_var": "AWS_DEFAULT_REGION",
+                  "name": "aws-connection-my-storage",
+                  "key": "AWS_DEFAULT_REGION"
+                },
+                {
+                  "env_var": "AWS_S3_BUCKET",
+                  "name": "aws-connection-my-storage",
+                  "key": "AWS_S3_BUCKET"
+                }
+              ],
+              "kubernetes_shared_mem_size": {},
+              "kubernetes_tolerations": [],
+              "mounted_volumes": [
+                {
+                  "path": "/opt/app-root/src/pipelines-pvc",
+                  "pvc_name": "pipelines-pvc",
+                  "read_only": false
+                }
+              ],
+              "filename": "upload.ipynb"
+            },
+            "label": "",
+            "ui_data": {
+              "label": "upload.ipynb",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
+              "x_pos": 601,
+              "y_pos": 293,
+              "description": "Run notebook file"
+            }
+          },
+          "inputs": [
+            {
+              "id": "inPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Input Port"
+                }
+              },
+              "links": [
+                {
+                  "id": "a60d6fdf-3e85-4d33-8bd7-156aac9db819",
+                  "node_id_ref": "7d6cb2ba-616a-40bd-835f-dda47b90c44b",
+                  "port_id_ref": "outPort"
+                }
+              ]
+            }
+          ],
+          "outputs": [
+            {
+              "id": "outPort",
+              "app_data": {
+                "ui_data": {
+                  "cardinality": {
+                    "min": 0,
+                    "max": -1
+                  },
+                  "label": "Output Port"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "app_data": {
+        "ui_data": {
+          "comments": []
+        },
+        "version": 8,
+        "runtime_type": "KUBEFLOW_PIPELINES",
+        "properties": {
+          "name": "Dreambooth",
+          "runtime": "Data Science Pipelines",
+          "pipeline_defaults": {
+            "kubernetes_pod_annotations": [],
+            "kubernetes_pod_labels": [],
+            "mounted_volumes": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_shared_mem_size": {},
+            "env_vars": [
+              {
+                "env_var": "WORKING_DIR",
+                "value": "/opt/app-root/src/pipelines-pvc"
+              }
+            ],
+            "kubernetes_secrets": [],
+            "runtime_image": "quay.io/modh/runtime-images@sha256:8a498803e4d605f20427fdb4814479ea5b51b4eb14010d181badd4f49cc72d88"
+          },
+          "pipeline_parameters": [
+            {
+              "name": "num_class_images",
+              "description": "Number of \"class images\"",
+              "default_value": {
+                "type": "String",
+                "value": "100"
+              },
+              "required": true
+            },
+            {
+              "name": "max_train_steps",
+              "description": "Number of maximum steps to train",
+              "default_value": {
+                "type": "String",
+                "value": "800"
+              },
+              "required": true
+            },
+            {
+              "name": "instance_data_url",
+              "description": "tar.gz file URL e.g. https://my-site.com/download.tar.gz",
+              "default_value": {
+                "type": "String",
+                "value": "https://rhods-public.s3.amazonaws.com/sample-data/images/redhat-dog.tar.gz"
+              },
+              "required": false
+            },
+            {
+              "name": "instance_prompt",
+              "description": "e.g. photo of a abcxyz dog",
+              "default_value": {
+                "type": "String",
+                "value": "photo of a rhteddy dog"
+              },
+              "required": false
+            },
+            {
+              "name": "class_prompt",
+              "description": "e.g. photo of a dog",
+              "default_value": {
+                "type": "String",
+                "value": "a photo of dog"
+              },
+              "required": false
+            },
+            {
+              "name": "aws_s3_prefix",
+              "description": "folder/prefix to for uploaded artifacts",
+              "default_value": {
+                "type": "String",
+                "value": "text-to-image/stable_diffusion_weights"
+              },
+              "required": false
+            },
+            {
+              "name": "model_name",
+              "description": "hugginface model name ",
+              "default_value": {
+                "type": "String",
+                "value": "runwayml/stable-diffusion-v1-5"
+              },
+              "required": false
+            }
+          ]
+        }
+      },
+      "runtime_ref": ""
+    }
+  ],
+  "schemas": []
+}

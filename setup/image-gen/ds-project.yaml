@@ -1,0 +1,10 @@
+﻿kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: image-generation
+  labels:
+    kubernetes.io/metadata.name: image-generation
+    opendatahub.io/dashboard: 'true'
+  annotations:
+    openshift.io/description: ''
+    openshift.io/display-name: Image Generation

@@ -1,0 +1,17 @@
+boto3
+botocore
+grpcio
+grpcio-tools
+pandas
+
+tensorboard
+Jinja2
+peft==0.7.0
+torch
+torchvision
+transformers
+accelerate
+git+https://github.com/huggingface/diffusers
+xformers
+bitsandbytes==0.43.0
+ftfy==6.2.0

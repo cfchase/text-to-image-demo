@@ -1,0 +1,40 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-ds-pipeline-config
+spec:
+  selector: {}
+  template:
+    spec:
+      serviceAccount: demo-setup
+      serviceAccountName: demo-setup
+      containers:
+        - name: create-ds-pipeline-config
+          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+          imagePullPolicy: IfNotPresent
+          command: [ "/bin/bash" ]
+          args:
+            - -ec
+            - |-
+              echo -n 'Waiting for dsp route'
+              while ! oc get route ds-pipeline-pipelines-definition 2>/dev/null | grep -qF ds-pipeline-pipelines-definition; do
+                echo -n .
+                sleep 5
+              done; echo
+
+              DSPPD_HOST=$(oc get route ds-pipeline-pipelines-definition -n pipelines-tutorial -o template --template '{{.spec.host}}')
+              DASHBOARD_HOST=${DSPPD_HOST/ds-pipeline-pipelines-definition-pipelines-tutorial/rhods-dashboard-redhat-ods-applications}
+              ODH_DSP_JSON="{\"display_name\":\"Data Science Pipeline\",\"metadata\":{\"tags\":[],\"display_name\":\"Data Science Pipeline\",\"engine\":\"Tekton\",\"auth_type\":\"KUBERNETES_SERVICE_ACCOUNT_TOKEN\",\"api_endpoint\":\"https://${DSPPD_HOST}\",\"public_api_endpoint\":\"https://${DASHBOARD_HOST}/pipelineRuns/pipelines-tutorial/pipelineRun/view/\",\"cos_auth_type\":\"KUBERNETES_SECRET\",\"cos_secret\":\"aws-connection-pipeline-artifacts\",\"cos_endpoint\":\"http://minio:9000\",\"cos_bucket\":\"pipeline-artifacts\",\"cos_username\":\"minioadmin\",\"cos_password\":\"minioadmin\",\"runtime_type\":\"KUBEFLOW_PIPELINES\"},\"schema_name\":\"kfp\"}"
+
+              cat << EOF | oc apply -f-
+              kind: Secret
+              apiVersion: v1
+              metadata:
+                name: ds-pipeline-config
+              stringData:
+                odh_dsp.json: >-
+                  ${ODH_DSP_JSON}
+              type: Opaque
+              EOF
+      restartPolicy: Never
