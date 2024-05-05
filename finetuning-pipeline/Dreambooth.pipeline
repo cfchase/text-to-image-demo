@@ -138,13 +138,17 @@
               ],
               "filename": "train.ipynb",
               "gpu_vendor": "nvidia.com/gpu",
-              "gpu": 1
+              "gpu": 1,
+              "cpu": 4,
+              "cpu_limit": 12,
+              "memory_limit": 48,
+              "memory": 12
             },
             "label": "",
             "ui_data": {
               "label": "train.ipynb",
               "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
-              "x_pos": 350,
+              "x_pos": 351,
               "y_pos": 293,
               "description": "Run notebook file"
             }
@@ -294,11 +298,11 @@
           "name": "Dreambooth",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_shared_mem_size": {},
-            "kubernetes_pod_labels": [],
-            "kubernetes_tolerations": [],
             "kubernetes_pod_annotations": [],
+            "kubernetes_pod_labels": [],
             "mounted_volumes": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_shared_mem_size": {},
             "env_vars": [
               {
                 "env_var": "WORKING_DIR",
@@ -314,7 +318,7 @@
               "description": "Number of \"class images\"",
               "default_value": {
                 "type": "String",
-                "value": "200"
+                "value": "100"
               },
               "required": true
             },
@@ -359,7 +363,7 @@
               "description": "folder/prefix to for uploaded artifacts",
               "default_value": {
                 "type": "String",
-                "value": "text-to-image/stable_diffusion_weights/dreambooth"
+                "value": "text-to-image/stable_diffusion_weights"
               },
               "required": false
             },
@@ -368,7 +372,7 @@
               "description": "hugginface model name ",
               "default_value": {
                 "type": "String",
-                "value": "stabilityai/stable-diffusion-2-1"
+                "value": "runwayml/stable-diffusion-v1-5"
               },
               "required": false
             }
