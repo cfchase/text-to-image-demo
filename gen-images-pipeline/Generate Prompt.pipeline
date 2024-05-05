@@ -48,7 +48,7 @@
             "label": "",
             "ui_data": {
               "label": "gen_prompt.ipynb",
-              "image": "/notebook/image-generation/pipeline-editor/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 176,
               "y_pos": 306,
               "description": "Run notebook file"
@@ -95,10 +95,10 @@
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
             "kubernetes_shared_mem_size": {},
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
             "kubernetes_pod_annotations": [],
             "mounted_volumes": [],
-            "kubernetes_tolerations": [],
-            "kubernetes_pod_labels": [],
             "env_vars": [],
             "kubernetes_secrets": [
               {
@@ -127,7 +127,7 @@
                 "key": "AWS_S3_BUCKET"
               }
             ],
-            "runtime_image": "quay.io/modh/runtime-images@sha256:d4f79f0d7596cf8058b58f1c317e698781a97bfbd3b6d13daa80390742ff6eac"
+            "runtime_image": "quay.io/modh/runtime-images@sha256:8a498803e4d605f20427fdb4814479ea5b51b4eb14010d181badd4f49cc72d88"
           },
           "pipeline_parameters": [
             {

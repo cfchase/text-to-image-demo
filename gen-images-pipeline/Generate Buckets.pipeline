@@ -49,7 +49,7 @@
             "label": "prepare-data",
             "ui_data": {
               "label": "prepare-data",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 119,
               "y_pos": 457,
               "description": "Run notebook file"
@@ -120,7 +120,7 @@
             "label": "1-generate-images",
             "ui_data": {
               "label": "1-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 402,
               "y_pos": 322,
               "description": "Run notebook file"
@@ -198,7 +198,7 @@
             "label": "2-generate-images",
             "ui_data": {
               "label": "2-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 405,
               "y_pos": 381,
               "description": "Run notebook file"
@@ -276,7 +276,7 @@
             "label": "3-generate-images",
             "ui_data": {
               "label": "3-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 406,
               "y_pos": 439,
               "description": "Run notebook file"
@@ -354,7 +354,7 @@
             "label": "4-generate-images",
             "ui_data": {
               "label": "4-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 406,
               "y_pos": 494,
               "description": "Run notebook file"
@@ -432,7 +432,7 @@
             "label": "5-generate-images",
             "ui_data": {
               "label": "5-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 407,
               "y_pos": 541,
               "description": "Run notebook file"
@@ -510,7 +510,7 @@
             "label": "6-generate-images",
             "ui_data": {
               "label": "6-generate-images",
-              "image": "/notebook/photobooth/pytorch/static/elyra/notebook.svg",
+              "image": "/notebook/image-gen/image-generation/static/elyra/notebook.svg",
               "x_pos": 407,
               "y_pos": 592,
               "description": "Run notebook file"
@@ -563,11 +563,11 @@
           "name": "Generate Buckets",
           "runtime": "Data Science Pipelines",
           "pipeline_defaults": {
-            "kubernetes_tolerations": [],
-            "mounted_volumes": [],
-            "kubernetes_pod_annotations": [],
-            "kubernetes_pod_labels": [],
             "kubernetes_shared_mem_size": {},
+            "kubernetes_pod_labels": [],
+            "kubernetes_tolerations": [],
+            "kubernetes_pod_annotations": [],
+            "mounted_volumes": [],
             "env_vars": [],
             "kubernetes_secrets": [
               {
@@ -596,7 +596,7 @@
                 "key": "AWS_S3_BUCKET"
               }
             ],
-            "runtime_image": "quay.io/modh/runtime-images@sha256:d4f79f0d7596cf8058b58f1c317e698781a97bfbd3b6d13daa80390742ff6eac"
+            "runtime_image": "quay.io/modh/runtime-images@sha256:8a498803e4d605f20427fdb4814479ea5b51b4eb14010d181badd4f49cc72d88"
           },
           "pipeline_parameters": [
             {
@@ -604,7 +604,7 @@
               "description": "CSV with columns of buckets, rows of prompts",
               "default_value": {
                 "type": "String",
-                "value": "buckets-prompts-short.csv"
+                "value": "bucket-prompts-short.csv"
               },
               "required": true
             },
