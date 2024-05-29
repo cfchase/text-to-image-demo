@@ -1,0 +1,14 @@
+{
+  "apiVersion": "authorization.k8s.io/v1",
+  "kind": "SelfSubjectAccessReview",
+  "spec": {
+    "resourceAttributes": {
+      "group": "rbac.authorization.k8s.io",
+      "resource": "rolebindings",
+      "subresource": "",
+      "verb": "create",
+      "name": "",
+      "namespace": "image-generation"
+    }
+  }
+}

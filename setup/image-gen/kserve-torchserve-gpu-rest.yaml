@@ -1,0 +1,38 @@
+﻿apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    openshift.io/display-name: TorchServe REST
+  labels:
+    opendatahub.io/dashboard: 'true'
+  name: kserve-torchserve-gpu-rest
+spec:
+  annotations:
+    prometheus.kserve.io/port: '8002'
+    prometheus.kserve.io/path: "/metrics"
+  supportedModelFormats:
+    - name: pytorch
+      version: "1"
+      autoSelect: true
+      priority: 2
+  protocolVersions:
+    - v1
+    - v2
+    - grpc-v2
+  containers:
+    - name: kserve-container
+      image: "docker.io/pytorch/torchserve-kfs:0.10.0-gpu"
+      args:
+        - torchserve
+        - --start
+        - --model-store=/mnt/models/model-store
+        - --ts-config=/mnt/models/config/config.properties
+      env:
+        - name: "TS_SERVICE_ENVELOPE"
+          value: "kservev2"
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+  multiModel: false
+

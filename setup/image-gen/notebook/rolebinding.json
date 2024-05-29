@@ -1,0 +1,30 @@
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "RoleBinding",
+  "metadata": {
+    "name": "elyra-pipelines-image-generation",
+    "namespace": "image-generation",
+    "labels": {
+      "opendatahub.io/dashboard": "true"
+    },
+    "ownerReferences": [
+      {
+        "apiVersion": "kubeflow.org/v1beta1",
+        "kind": "Notebook",
+        "name": "image-generation",
+        "uid": "4006010e-c670-48f8-adb3-937e64e3657a"
+      }
+    ]
+  },
+  "roleRef": {
+    "apiGroup": "rbac.authorization.k8s.io",
+    "kind": "Role",
+    "name": "ds-pipeline-user-access-pipelines-definition"
+  },
+  "subjects": [
+    {
+      "kind": "ServiceAccount",
+      "name": "image-generation"
+    }
+  ]
+}

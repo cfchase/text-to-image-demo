@@ -1,0 +1,73 @@
+﻿kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  annotations:
+    description: NVIDIA Triton Model Serving Definition
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/modelServingSupport: '["single"]'
+    tags: 'kserve-triton,servingruntime'
+  name: kserve-ovms
+  namespace: redhat-ods-applications
+  labels:
+    app: odh-dashboard
+    app.kubernetes.io/part-of: rhods-dashboard
+    app.opendatahub.io/rhods-dashboard: 'true'
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/ootb: 'true'
+objects:
+  - apiVersion: serving.kserve.io/v1alpha1
+    kind: ServingRuntime
+    metadata:
+      annotations:
+        opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+        openshift.io/display-name: NVIDIA Triton Inference Server
+      labels:
+        opendatahub.io/dashboard: 'true'
+      name: kserve-triton-rest
+    spec:
+      annotations:
+        prometheus.kserve.io/port: '8002'
+        prometheus.kserve.io/path: "/metrics"
+      supportedModelFormats:
+        - name: tensorrt
+          version: "8"
+          autoSelect: true
+          priority: 1
+        - name: tensorflow
+          version: "1"
+          autoSelect: true
+          priority: 1
+        - name: tensorflow
+          version: "2"
+          autoSelect: true
+          priority: 1
+        - name: onnx
+          version: "1"
+          autoSelect: true
+          priority: 1
+        - name: pytorch
+          version: "1"
+        - name: triton
+          version: "2"
+          autoSelect: true
+          priority: 1
+      protocolVersions:
+        - v2
+        - grpc-v2
+      containers:
+        - name: kserve-container
+          image: "nvcr.io/nvidia/tritonserver:24.04-py3"
+          args:
+            - tritonserver
+            - --model-store=/mnt/models
+            - --grpc-port=9000
+            - --http-port=8080
+            - --allow-grpc=true
+            - --allow-http=true
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      multiModel: false
+
+
+
