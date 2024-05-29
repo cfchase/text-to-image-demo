@@ -1,0 +1,10 @@
+kserve~=0.12.1
+torch~=2.2.2
+torchvision~=0.17.2
+transformers==4.39.3
+accelerate==0.28.0
+xformers==0.0.25.post1
+bitsandbytes==0.43.0
+ftfy==6.2.0
+diffusers~=0.27.2
+pillow~=10.3.0

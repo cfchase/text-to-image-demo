@@ -1,0 +1,67 @@
+﻿kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  annotations:
+    description: OpenVino Model Serving Definition
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/modelServingSupport: '["single"]'
+    tags: 'kserve-ovms,servingruntime'
+  name: kserve-ovms
+  labels:
+    app: odh-dashboard
+    app.kubernetes.io/part-of: rhods-dashboard
+    app.opendatahub.io/rhods-dashboard: 'true'
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/ootb: 'true'
+objects:
+  - apiVersion: serving.kserve.io/v1alpha1
+    kind: ServingRuntime
+    metadata:
+      annotations:
+        opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+        openshift.io/display-name: OpenVINO Model Server
+      labels:
+        opendatahub.io/dashboard: 'true'
+      name: kserve-ovms
+    spec:
+      annotations:
+        prometheus.kserve.io/path: /metrics
+        prometheus.kserve.io/port: '8888'
+      containers:
+        - args:
+            - '--model_name={{.Name}}'
+            - '--port=8001'
+            - '--rest_port=8888'
+            - '--model_path=/mnt/models'
+            - '--file_system_poll_wait_seconds=0'
+            - '--grpc_bind_address=127.0.0.1'
+            - '--rest_bind_address=127.0.0.1'
+            - '--target_device=AUTO'
+            - '--metrics_enable'
+          image: 'quay.io/modh/openvino_model_server@sha256:5d04d405526ea4ce5b807d0cd199ccf7f71bab1228907c091e975efa770a4908'
+          name: kserve-container
+          ports:
+            - containerPort: 8888
+              protocol: TCP
+      multiModel: false
+      protocolVersions:
+        - v2
+        - grpc-v2
+      supportedModelFormats:
+        - autoSelect: true
+          name: openvino_ir
+          version: opset13
+        - name: onnx
+          version: '1'
+        - autoSelect: true
+          name: tensorflow
+          version: '1'
+        - autoSelect: true
+          name: tensorflow
+          version: '2'
+        - autoSelect: true
+          name: paddle
+          version: '2'
+        - autoSelect: true
+          name: pytorch
+          version: '2'
