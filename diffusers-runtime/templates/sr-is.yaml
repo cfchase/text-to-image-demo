@@ -8,8 +8,9 @@ metadata:
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
     opendatahub.io/template-display-name: Diffusers Runtime
     opendatahub.io/template-name: diffusers-runtime
-    openshift.io/display-name: sd21
-  name: sd21
+    openshift.io/display-name: redhat-dog
+    serving.kserve.io/deploymentMode: RawDeployment
+  name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -25,10 +26,10 @@ spec:
           protocol: TCP
       resources:
         limits:
-          cpu: '14'
+          cpu: '6'
           memory: 24Gi
         requests:
-          cpu: '4'
+          cpu: '1'
           memory: 8Gi
       volumeMounts:
         - mountPath: /dev/shm
@@ -50,11 +51,9 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   annotations:
-    openshift.io/display-name: sd21
-    serving.knative.openshift.io/enablePassthrough: 'true'
-    sidecar.istio.io/inject: 'true'
-    sidecar.istio.io/rewriteAppHTTPProbers: 'true'
-  name: sd21
+    openshift.io/display-name: redhat-dog
+    serving.kserve.io/deploymentMode: RawDeployment
+  name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -71,10 +70,10 @@ spec:
           nvidia.com/gpu: '1'
         requests:
           nvidia.com/gpu: '1'
-      runtime: sd21
+      runtime: redhat-dog
       storage:
         key: aws-connection-my-storage
-        path: models/stable-diffusion-2-1/
+        path: models/notebook-output/redhat-dog/
     tolerations:
       - effect: NoSchedule
         key: nvidia.com/gpu
