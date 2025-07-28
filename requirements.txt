@@ -1,15 +1,22 @@
-boto3
-botocore
-grpcio
-grpcio-tools
-pandas
+# INSTALLATION NOTE:
+# This file contains all dependencies, but some packages (flash-attn, bitsandbytes) 
+# require PyTorch to be installed before they can build. To install successfully, use:
+#   pip install -r requirements-base.txt
+#   pip install -r requirements-gpu.txt
+#
+# Or install this file after PyTorch is already available in your environment.
 
-torch
-torchvision
-transformers==4.39.3
-accelerate==0.28.0
-flash-attn
-xformers==0.0.25.post1
-bitsandbytes==0.43.0
-ftfy==6.2.0
-git+https://github.com/huggingface/diffusers
+boto3==1.37.38
+botocore==1.37.38
+grpcio==1.73.0
+pandas==2.2.3
+
+torch==2.6.0
+torchvision==0.21.0
+numpy==2.2.6
+transformers==4.54.0
+accelerate==1.9.0
+flash-attn==2.8.2
+bitsandbytes==0.46.1
+ftfy==6.3.1
+diffusers==0.34.0
