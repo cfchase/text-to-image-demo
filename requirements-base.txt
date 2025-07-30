@@ -9,5 +9,6 @@ numpy==2.2.6
 transformers==4.54.0
 accelerate==1.9.0
 ftfy==6.3.1
-diffusers==0.34.0
+# Install diffusers from source for latest training script compatibility
+git+https://github.com/huggingface/diffusers.git
 huggingface-hub==0.34.3

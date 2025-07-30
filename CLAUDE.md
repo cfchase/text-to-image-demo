@@ -23,7 +23,7 @@ pip install -r requirements-base.txt
 pip install -r requirements-gpu.txt
 
 # Alternative: Install all at once (if PyTorch is already available)
-pip install -r requirements.txt
+pip install -r requirements-base.txt && pip install -r requirements-gpu.txt
 ```
 
 ### Initial Setup
