@@ -9,7 +9,6 @@ metadata:
     opendatahub.io/template-display-name: Diffusers Runtime
     opendatahub.io/template-name: diffusers-runtime
     openshift.io/display-name: redhat-dog
-    serving.kserve.io/deploymentMode: RawDeployment
   name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
@@ -24,13 +23,6 @@ spec:
       ports:
         - containerPort: 8080
           protocol: TCP
-      resources:
-        limits:
-          cpu: '6'
-          memory: 24Gi
-        requests:
-          cpu: '1'
-          memory: 8Gi
       volumeMounts:
         - mountPath: /dev/shm
           name: shm
@@ -51,13 +43,14 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   annotations:
-    openshift.io/display-name: redhat-dog
+    openshift.io/display-name: Red Hat Dog
     serving.kserve.io/deploymentMode: RawDeployment
   name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
   predictor:
+    automountServiceAccountToken: false
     maxReplicas: 1
     minReplicas: 1
     model:
@@ -67,8 +60,12 @@ spec:
       name: ''
       resources:
         limits:
+          cpu: '6'
+          memory: 24Gi
           nvidia.com/gpu: '1'
         requests:
+          cpu: '1'
+          memory: 8Gi
           nvidia.com/gpu: '1'
       runtime: redhat-dog
       storage:
