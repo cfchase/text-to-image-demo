@@ -10,13 +10,12 @@ WORKDIR /projects
 # Copy the content of the local src directory to the working directory
 COPY . .
 
-# Install any dependencies
-RUN \
-  if [ -f requirements.txt ]; \
-    then pip install -r requirements.txt; \
-  elif [ `ls -1q *.txt | wc -l` == 1 ]; \
-    then pip install -r *.txt; \
-  fi
+# Install base dependencies first (including PyTorch)
+RUN pip install -r requirements-base.txt
+
+# Install GPU dependencies that require PyTorch (like flash-attn)
+# Use --no-build-isolation so flash-attn can see the installed torch
+RUN pip install --no-build-isolation -r requirements-gpu.txt
 
 # Specify the command to run on container start
 ENTRYPOINT ["python", "./model.py"]

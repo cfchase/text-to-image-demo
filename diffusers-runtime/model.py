@@ -6,6 +6,7 @@ import argparse
 from typing import Dict, Union
 import torch
 from diffusers import DiffusionPipeline
+from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 
 from kserve import (
     Model,
@@ -27,9 +28,40 @@ class DiffusersModel(Model):
         self.load()
 
     def load(self):
-        pipeline = DiffusionPipeline.from_pretrained(self.model_id)
+        # Load pipeline with memory optimizations using accelerate
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
+        # Load with low memory usage for better memory efficiency
+        pipeline = DiffusionPipeline.from_pretrained(
+            self.model_id,
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+        )
+        
+        # Move to device
         pipeline.to(device)
+        
+        # Apply GPU-specific memory optimizations
+        if torch.cuda.is_available():
+            # Check which optimizations are available for this pipeline type
+            
+            # Enable attention slicing if available (most pipelines support this)
+            if hasattr(pipeline, 'enable_attention_slicing'):
+                pipeline.enable_attention_slicing()
+            
+            # Enable VAE slicing if available (SD 1.x/2.x/XL support this, SD3 may not)
+            if hasattr(pipeline, 'enable_vae_slicing'):
+                pipeline.enable_vae_slicing()
+            
+            # Use accelerate's CPU offload for better memory management
+            if hasattr(pipeline, 'enable_model_cpu_offload'):
+                pipeline.enable_model_cpu_offload()
+            # Enable sequential CPU offload as fallback (older method, more compatible)
+            elif hasattr(pipeline, 'enable_sequential_cpu_offload'):
+                pipeline.enable_sequential_cpu_offload()
+            
+            # Note: SD 3.5 has built-in memory optimizations, fewer manual optimizations needed
+        
         self.pipeline = pipeline
         # The ready flag is used by model ready endpoint for readiness probes,
         # set to True when model is loaded successfully without exceptions.

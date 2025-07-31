@@ -1,0 +1,3 @@
+# Skip flash-attn for now due to build complexity in container
+# flash-attn==2.8.2
+bitsandbytes==0.46.1
