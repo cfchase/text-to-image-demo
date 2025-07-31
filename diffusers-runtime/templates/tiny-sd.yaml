@@ -3,13 +3,11 @@ apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
   annotations:
-    opendatahub.io/accelerator-name: migrated-gpu
     opendatahub.io/apiProtocol: REST
-    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-    opendatahub.io/template-display-name: Diffusers Runtime
-    opendatahub.io/template-name: diffusers-runtime
-    openshift.io/display-name: redhat-dog
-  name: redhat-dog
+    opendatahub.io/template-display-name: Diffusers Runtime (CPU)
+    opendatahub.io/template-name: diffusers-runtime-cpu
+    openshift.io/display-name: tiny-sd
+  name: tiny-sd
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -23,17 +21,9 @@ spec:
       ports:
         - containerPort: 8080
           protocol: TCP
-      # env:
-      #   - name: DTYPE
-      #     value: "auto"        # Options: auto, bfloat16, float16, float32, native
-      #   - name: ENABLE_LOW_CPU_MEM
-      #     value: "true"
-      #   - name: ENABLE_ATTENTION_SLICING
-      #     value: "true"
-      #   - name: ENABLE_VAE_SLICING
-      #     value: "true"
-      #   - name: ENABLE_CPU_OFFLOAD
-      #     value: "true"
+      env:
+        - name: MODEL_ID
+          value: "segmind/tiny-sd"
       volumeMounts:
         - mountPath: /dev/shm
           name: shm
@@ -54,9 +44,9 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   annotations:
-    openshift.io/display-name: Red Hat Dog
+    openshift.io/display-name: Tiny SD (CPU Test)
     serving.kserve.io/deploymentMode: RawDeployment
-  name: redhat-dog
+  name: tiny-sd
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -71,18 +61,9 @@ spec:
       name: ''
       resources:
         limits:
-          cpu: '6'
-          memory: 64Gi
-          nvidia.com/gpu: '1'
+          cpu: '4'
+          memory: 8Gi
         requests:
           cpu: '1'
-          memory: 8Gi
-          nvidia.com/gpu: '1'
-      runtime: redhat-dog
-      storage:
-        key: aws-connection-my-storage
-        path: models/notebook-output/redhat-dog/
-    tolerations:
-      - effect: NoSchedule
-        key: nvidia.com/gpu
-        operator: Exists
+          memory: 4Gi
+      runtime: tiny-sd

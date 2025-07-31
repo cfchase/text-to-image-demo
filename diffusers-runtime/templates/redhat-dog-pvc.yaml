@@ -6,8 +6,8 @@ metadata:
     opendatahub.io/accelerator-name: migrated-gpu
     opendatahub.io/apiProtocol: REST
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-    opendatahub.io/template-display-name: Diffusers Runtime
-    opendatahub.io/template-name: diffusers-runtime
+    opendatahub.io/template-display-name: Diffusers Runtime PVC
+    opendatahub.io/template-name: diffusers-runtime-pvc
     openshift.io/display-name: redhat-dog
   name: redhat-dog
   labels:
@@ -54,7 +54,7 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   annotations:
-    openshift.io/display-name: Red Hat Dog
+    openshift.io/display-name: Red Hat Dog PVC
     serving.kserve.io/deploymentMode: RawDeployment
   name: redhat-dog
   labels:
@@ -79,9 +79,7 @@ spec:
           memory: 8Gi
           nvidia.com/gpu: '1'
       runtime: redhat-dog
-      storage:
-        key: aws-connection-my-storage
-        path: models/notebook-output/redhat-dog/
+      storageUri: 'pvc://models/stable_diffusion_weights/redhat-dog'
     tolerations:
       - effect: NoSchedule
         key: nvidia.com/gpu
