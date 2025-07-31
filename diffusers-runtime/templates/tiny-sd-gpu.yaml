@@ -26,6 +26,16 @@ spec:
       env:
         - name: MODEL_ID
           value: "segmind/tiny-sd"
+        # - name: DTYPE
+        #   value: "auto"        # Options: auto, bfloat16, float16, float32, native
+        # - name: ENABLE_LOW_CPU_MEM
+        #   value: "true"
+        # - name: ENABLE_ATTENTION_SLICING
+        #   value: "true"
+        # - name: ENABLE_VAE_SLICING
+        #   value: "true"
+        # - name: ENABLE_CPU_OFFLOAD
+        #   value: "true"
       volumeMounts:
         - mountPath: /dev/shm
           name: shm
