@@ -17,7 +17,7 @@ spec:
     prometheus.kserve.io/path: /metrics
     prometheus.kserve.io/port: '8888'
   containers:
-    - image: 'quay.io/cfchase/diffusers-runtime:v0.1'
+    - image: 'quay.io/cfchase/diffusers-runtime:latest'
       imagePullPolicy: Always
       name: kserve-container
       ports:
@@ -61,7 +61,7 @@ spec:
       resources:
         limits:
           cpu: '6'
-          memory: 48Gi
+          memory: 64Gi
           nvidia.com/gpu: '1'
         requests:
           cpu: '1'

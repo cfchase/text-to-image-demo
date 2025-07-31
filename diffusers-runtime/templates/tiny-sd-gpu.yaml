@@ -17,7 +17,7 @@ spec:
     prometheus.kserve.io/path: /metrics
     prometheus.kserve.io/port: '8888'
   containers:
-    - image: 'quay.io/cfchase/diffusers-runtime:v0.1'
+    - image: 'quay.io/cfchase/diffusers-runtime:latest'
       imagePullPolicy: Always
       name: kserve-container
       ports:
