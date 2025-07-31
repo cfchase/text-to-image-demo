@@ -4,16 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a Stable Diffusion and Dreambooth demonstration project for Red Hat OpenShift AI (formerly RHODS). It demonstrates text-to-image generation, model fine-tuning, and serving using KServe.
+This is a Stable Diffusion 3.5 and Dreambooth demonstration project for Red Hat OpenShift AI (formerly RHODS). It demonstrates text-to-image generation, model fine-tuning, and serving using KServe with universal pipeline support for multiple Stable Diffusion model versions.
 
 ## Key Commands
 
 ### Model Serving (from diffusers-runtime/)
 ```bash
-make build    # Build the KServe runtime container
-make push     # Push container to registry
-make deploy   # Deploy model to OpenShift
-make test-v1  # Test the deployed model endpoint
+make build                            # Build KServe runtime container (linux/amd64)
+make push                             # Push both latest and v0.2 tags to registry
+oc apply -f templates/redhat-dog.yaml # Deploy example model to OpenShift
+make test-v1                          # Test deployed model endpoint (requires port-forward)
+
+# Container runtime options:
+make build CONTAINER_RUNTIME=docker   # Use docker instead of podman
 ```
 
 ### Python Dependencies
@@ -45,8 +48,9 @@ Notebooks should be run in sequence:
   - Pipeline steps: get_data.ipynb → train.ipynb → upload.ipynb
   - Core training logic: train_dreambooth.py
 - **diffusers-runtime/**: Custom KServe runtime for serving Diffusers models
-  - model.py: KServe predictor implementation
-  - Handles both v1 and v2 inference protocols
+  - model.py: KServe predictor implementation with universal DiffusionPipeline support
+  - Handles v1 inference protocol
+  - Auto-detects and loads appropriate pipeline for any Stable Diffusion model
 - **setup/**: OpenShift/Kubernetes manifests for deployment
 
 ### Data Flow
@@ -65,10 +69,11 @@ Notebooks should be run in sequence:
 ## Development Notes
 
 - The project uses PyTorch with CUDA support for GPU acceleration
-- Hugging Face Diffusers library for Stable Diffusion models
-- No automated tests or linting configured - manual testing through notebooks
-- Container builds use podman/docker via Makefile targets
+- Hugging Face Diffusers library with universal DiffusionPipeline for broad model compatibility
+- Primary model: Stable Diffusion 3.5 Medium (also supports SD 1.5, 2.x, XL)
+- Container builds target linux/amd64 with configurable runtime (podman/docker)
 - Model versions tracked through S3 paths and KServe configurations
+- No automated tests or linting configured - manual testing through notebooks
 
 ### Dependency Installation Issues
 - `flash-attn` and `bitsandbytes` require PyTorch to be installed before they can build
