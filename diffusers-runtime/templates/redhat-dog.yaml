@@ -23,6 +23,17 @@ spec:
       ports:
         - containerPort: 8080
           protocol: TCP
+      # env:
+      #   - name: ENABLE_LOW_CPU_MEM
+      #     value: "true"
+      #   - name: ENABLE_FLOAT16
+      #     value: "true"
+      #   - name: ENABLE_ATTENTION_SLICING
+      #     value: "true"
+      #   - name: ENABLE_VAE_SLICING
+      #     value: "true"
+      #   - name: ENABLE_CPU_OFFLOAD
+      #     value: "true"
       volumeMounts:
         - mountPath: /dev/shm
           name: shm

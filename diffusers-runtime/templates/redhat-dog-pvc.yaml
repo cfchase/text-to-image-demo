@@ -8,8 +8,8 @@ metadata:
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
     opendatahub.io/template-display-name: Diffusers Runtime PVC
     opendatahub.io/template-name: diffusers-runtime-pvc
-    openshift.io/display-name: redhat-dog-pvc
-  name: redhat-dog-pvc
+    openshift.io/display-name: redhat-dog
+  name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -23,6 +23,17 @@ spec:
       ports:
         - containerPort: 8080
           protocol: TCP
+      # env:
+      #   - name: ENABLE_LOW_CPU_MEM
+      #     value: "true"
+      #   - name: ENABLE_FLOAT16
+      #     value: "true"
+      #   - name: ENABLE_ATTENTION_SLICING
+      #     value: "true"
+      #   - name: ENABLE_VAE_SLICING
+      #     value: "true"
+      #   - name: ENABLE_CPU_OFFLOAD
+      #     value: "true"
       volumeMounts:
         - mountPath: /dev/shm
           name: shm
@@ -45,7 +56,7 @@ metadata:
   annotations:
     openshift.io/display-name: Red Hat Dog PVC
     serving.kserve.io/deploymentMode: RawDeployment
-  name: redhat-dog-pvc
+  name: redhat-dog
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -67,7 +78,7 @@ spec:
           cpu: '1'
           memory: 8Gi
           nvidia.com/gpu: '1'
-      runtime: redhat-dog-pvc
+      runtime: redhat-dog
       storageUri: 'pvc://models/stable_diffusion_weights/redhat-dog'
     tolerations:
       - effect: NoSchedule
