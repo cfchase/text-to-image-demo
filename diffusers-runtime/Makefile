@@ -1,15 +1,18 @@
+CONTAINER_RUNTIME ?= podman
+
 build:
-	podman build -t quay.io/cfchase/diffusers-runtime:latest -f docker/Dockerfile .
+	$(CONTAINER_RUNTIME) build --platform linux/amd64 -t quay.io/cfchase/diffusers-runtime:latest -f docker/Dockerfile .
 
 push:
-	podman push quay.io/cfchase/diffusers-runtime:latest
+	$(CONTAINER_RUNTIME) tag quay.io/cfchase/diffusers-runtime:latest quay.io/cfchase/diffusers-runtime:v0.2
+	$(CONTAINER_RUNTIME) push quay.io/cfchase/diffusers-runtime:latest
+	$(CONTAINER_RUNTIME) push quay.io/cfchase/diffusers-runtime:v0.2
 
 run:
-	podman run -ePORT=8080 -p8080:8080 quay.io/cfchase/diffusers-runtime:latest
+	$(CONTAINER_RUNTIME) run -ePORT=8080 -p8080:8080 quay.io/cfchase/diffusers-runtime:latest
 
 deploy:
 	oc apply -f templates/inference-service.yaml
-	oc apply -f templates/route.yaml
 
 undeploy:
 	oc delete -f templates/route.yaml

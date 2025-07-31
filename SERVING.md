@@ -244,7 +244,7 @@ Specify GPU type:
 spec:
   predictor:
     nodeSelector:
-      nvidia.com/gpu.product: NVIDIA-A10G
+      nvidia.com/gpu.product: NVIDIA-L40S
     tolerations:
       - key: nvidia.com/gpu
         operator: Exists

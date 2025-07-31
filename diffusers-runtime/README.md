@@ -188,8 +188,9 @@ ENTRYPOINT ["python3", "-m", "model"]
 #### GPU Requirements
 
 - CUDA 11.8+ compatible GPU
-- Minimum 16GB VRAM for SD 2.1
-- Recommended: NVIDIA A10G or better
+- Minimum 24GB VRAM for SD 3.5 Medium (45GB+ recommended for optimal performance)
+- Recommended: NVIDIA L40S (45GB VRAM)
+- Minimum: NVIDIA A10G (24GB VRAM) for smaller models
 
 ### API Specification
 

@@ -12,3 +12,4 @@ ftfy==6.3.1
 # Install diffusers from source for latest training script compatibility
 git+https://github.com/huggingface/diffusers.git
 huggingface-hub==0.34.3
+sentencepiece==0.2.0

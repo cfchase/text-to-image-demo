@@ -12,7 +12,7 @@ This script guides you through demonstrating the complete ML workflow in OpenShi
 
 ### Required Resources
 - [ ] OpenShift cluster with OpenShift AI installed
-- [ ] GPU node (NVIDIA A10G or similar)
+- [ ] GPU node (NVIDIA L40S or A10G)
 - [ ] S3 storage configured
 - [ ] Demo repository cloned
 - [ ] HuggingFace token (optional)
