@@ -9,8 +9,10 @@ This demonstration showcases the complete machine learning workflow in Red Hat O
 - **Model Experimentation**: Working with pre-trained models from Hugging Face
 - **Fine-Tuning**: Customizing models with your own data using Dreambooth
 - **Pipeline Automation**: Building repeatable ML workflows with Data Science Pipelines
-- **Model Serving**: Deploying models as REST APIs using KServe
-- **Production Integration**: Connecting served models to applications
+- **Custom Runtime Development**: Building KServe runtimes
+- **Model Serving**: Deploying models as REST APIs using KServe with multiple deployment options
+- **Production Integration**: Connecting served models to applications and MCP servers
+- **Multi-Modal AI**: Combining text and image generation in unified applications
 
 ## Prerequisites
 
@@ -67,9 +69,11 @@ This demonstration showcases the complete machine learning workflow in Red Hat O
 ## Key Components
 
 - **Workbenches**: Jupyter notebook environments for development
-- **Pipelines**: Automated ML workflows
-- **Model Serving**: Deploy models as REST APIs
-- **Storage**: S3-compatible object storage for data and models
+- **Pipelines**: Automated ML workflows using Kubeflow
+- **Custom Runtime**: Diffusers runtime for image generation
+- **Model Serving**: Deploy models as REST APIs with multiple storage options
+- **Storage**: S3-compatible object storage, PVC, or HuggingFace Hub integration
+- **External Integration**: MCP server support for modern AI application development
 
 ## Detailed Setup Instructions
 
@@ -130,13 +134,28 @@ After training your model:
    cd diffusers-runtime
    make build
    make push
-   oc apply -f templates/serving-runtime.yaml
    ```
 
-2. Create a model server in the OpenShift AI dashboard:
-   - Model framework: "Custom"
-   - Model location: S3 path to your trained model
-   - Select the Diffusers serving runtime
+2. Choose your deployment template based on model storage:
+   ```bash
+   # For S3 storage-based models
+   oc apply -f templates/redhat-dog.yaml
+   
+   # For HuggingFace Hub models (recommended)
+   oc apply -f templates/redhat-dog-hf.yaml
+   
+   # For PVC-based storage
+   oc apply -f templates/redhat-dog-pvc.yaml
+   
+   # For testing with lightweight models
+   oc apply -f templates/tiny-sd-gpu.yaml
+   ```
+
+3. The runtime includes advanced optimizations:
+   - Automatic hardware detection (CUDA/MPS/CPU)
+   - Intelligent dtype selection with fallback chains
+   - Configurable memory optimizations
+   - Universal model loading support
 
 ## Project Structure
 
@@ -163,8 +182,17 @@ text-to-image-demo/
 │
 ├── diffusers-runtime/          # Custom KServe runtime
 │   ├── Dockerfile             # Runtime container definition
-│   ├── model.py              # KServe predictor implementation
-│   └── templates/            # Kubernetes manifests
+│   ├── model.py              # Main KServe predictor (refactored)
+│   ├── device_manager.py      # Hardware detection and management
+│   ├── dtype_selector.py      # Intelligent dtype selection
+│   ├── optimization_manager.py # Memory optimization controls
+│   ├── pipeline_loader.py     # Universal model loading
+│   ├── Makefile              # Build and deployment automation
+│   └── templates/            # Kubernetes deployment manifests
+│       ├── redhat-dog.yaml        # S3 storage deployment
+│       ├── redhat-dog-hf.yaml     # HuggingFace Hub deployment
+│       ├── redhat-dog-pvc.yaml    # PVC storage deployment
+│       └── tiny-sd-gpu.yaml       # Lightweight test deployment
 │
 └── setup/                     # Deployment configurations
     └── setup-s3.yaml         # Demo S3 storage setup
@@ -215,9 +243,21 @@ text-to-image-demo/
 - **Missing artifacts**: Verify S3 bucket permissions
 
 ### Serving Issues
-- **Model not loading**: Check S3 path and model format
-- **Inference errors**: Review KServe pod logs
+- **Model not loading**: Check model path (S3/PVC/HuggingFace) and format
+- **Inference errors**: Review KServe pod logs, check dtype compatibility
 - **Timeout errors**: Increase resource limits or timeout values
+- **Memory issues**: Enable optimizations via environment variables:
+  ```yaml
+  env:
+    - name: DTYPE
+      value: "auto"  # or bfloat16, float16, float32
+    - name: ENABLE_ATTENTION_SLICING
+      value: "true"
+    - name: ENABLE_VAE_SLICING
+      value: "true"
+    - name: ENABLE_CPU_OFFLOAD
+      value: "true"
+  ```
 
 ## Additional Resources
 

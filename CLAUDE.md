@@ -10,13 +10,22 @@ This is a Stable Diffusion 3.5 and Dreambooth demonstration project for Red Hat 
 
 ### Model Serving (from diffusers-runtime/)
 ```bash
+make help                             # Show all available targets and usage
 make build                            # Build KServe runtime container (linux/amd64)
+make run                              # Build and run container with segmind/tiny-sd
 make push                             # Push both latest and v0.2 tags to registry
-oc apply -f templates/redhat-dog.yaml # Deploy example model to OpenShift
+make dev                              # Test runtime locally with Python (fast iteration)
 make test-v1                          # Test deployed model endpoint (requires port-forward)
 
 # Container runtime options:
 make build CONTAINER_RUNTIME=docker   # Use docker instead of podman
+make run CONTAINER_RUNTIME=docker     # Run with docker instead of podman
+
+# Available deployment templates:
+oc apply -f templates/redhat-dog.yaml      # S3 storage-based deployment
+oc apply -f templates/redhat-dog-pvc.yaml  # PVC storage-based deployment  
+oc apply -f templates/redhat-dog-hf.yaml   # HuggingFace Hub direct loading
+oc apply -f templates/tiny-sd-gpu.yaml     # Lightweight test deployment
 ```
 
 ### Python Dependencies
@@ -48,9 +57,13 @@ Notebooks should be run in sequence:
   - Pipeline steps: get_data.ipynb → train.ipynb → upload.ipynb
   - Core training logic: train_dreambooth.py
 - **diffusers-runtime/**: Custom KServe runtime for serving Diffusers models
-  - model.py: KServe predictor implementation with universal DiffusionPipeline support
-  - Handles v1 inference protocol
-  - Auto-detects and loads appropriate pipeline for any Stable Diffusion model
+  - model.py: Main KServe predictor implementation (refactored for modularity)
+  - device_manager.py: Hardware detection and device management
+  - dtype_selector.py: Intelligent dtype selection with hardware-aware fallbacks
+  - optimization_manager.py: Memory optimization and pipeline configuration
+  - pipeline_loader.py: Universal DiffusionPipeline loading for any Stable Diffusion model
+  - Handles v1 inference protocol with configurable optimizations
+  - Supports multiple deployment modes (S3, PVC, HuggingFace Hub)
 - **setup/**: OpenShift/Kubernetes manifests for deployment
 
 ### Data Flow
@@ -72,8 +85,31 @@ Notebooks should be run in sequence:
 - Hugging Face Diffusers library with universal DiffusionPipeline for broad model compatibility
 - Primary model: Stable Diffusion 3.5 Medium (also supports SD 1.5, 2.x, XL)
 - Container builds target linux/amd64 with configurable runtime (podman/docker)
-- Model versions tracked through S3 paths and KServe configurations
-- No automated tests or linting configured - manual testing through notebooks
+- Model versions tracked through S3 paths, PVC mounts, or HuggingFace Hub repositories
+- Modular architecture for better maintainability and testing
+- No automated tests or linting configured - manual testing through notebooks and make dev
+
+### Custom Runtime Features
+- **Memory Optimizations**: Configurable attention slicing, VAE slicing, CPU offload
+- **DTYPE Management**: Intelligent dtype selection (auto, bfloat16, float16, float32, native)
+- **Hardware Detection**: Automatic CUDA/MPS/CPU detection with capability assessment
+- **Universal Loading**: Supports loading from S3, PVC, or HuggingFace Hub
+- **Environment Configuration**: All optimizations controlled via environment variables
+
+### Environment Variables for Runtime Optimization
+```bash
+# Data type selection (hardware-aware fallback)
+DTYPE=auto                    # Options: auto, bfloat16, float16, float32, native
+
+# Memory optimization toggles
+ENABLE_LOW_CPU_MEM=true       # Use accelerate for memory-efficient loading
+ENABLE_ATTENTION_SLICING=true # Reduce memory usage during attention computation
+ENABLE_VAE_SLICING=true       # Slice VAE computation to reduce memory
+ENABLE_CPU_OFFLOAD=true       # Offload model components to CPU when not in use
+
+# Model source configuration
+MODEL_ID=/mnt/models          # Local path, S3 path, or HuggingFace model ID
+```
 
 ### Dependency Installation Issues
 - `flash-attn` and `bitsandbytes` require PyTorch to be installed before they can build
