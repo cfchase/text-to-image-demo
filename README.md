@@ -19,7 +19,7 @@ This demonstration showcases the complete machine learning workflow in Red Hat O
 - Red Hat OpenShift AI installed (2.9+)
   - For managed service: Available as add-on for OpenShift Dedicated or ROSA
   - For self-managed: Install from OperatorHub
-- GPU node with at least 24GB memory (NVIDIA A10G or better recommended)
+- GPU node with at least 45GB memory (NVIDIA L40S recommended, A10G minimum for smaller models)
 
 ### Storage Requirements
 - S3-compatible object storage (MinIO, AWS S3, or Ceph)

@@ -57,7 +57,7 @@ Notebooks should be run in sequence:
 
 ## Environment Requirements
 
-- GPU with 24GB+ memory (A10G or better)
+- GPU with 45GB+ memory (NVIDIA L40S recommended, A10G minimum for smaller models)
 - S3-compatible storage with configured credentials
 - OpenShift AI 2.9+ with GPU support
 - Key environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_ENDPOINT, AWS_S3_BUCKET

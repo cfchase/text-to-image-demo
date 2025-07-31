@@ -27,7 +27,6 @@ class DiffusersModel(Model):
         self.load()
 
     def load(self):
-
         pipeline = DiffusionPipeline.from_pretrained(self.model_id)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         pipeline.to(device)
