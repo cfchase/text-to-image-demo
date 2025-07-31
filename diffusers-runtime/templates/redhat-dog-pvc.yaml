@@ -1,0 +1,75 @@
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/accelerator-name: migrated-gpu
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    opendatahub.io/template-display-name: Diffusers Runtime PVC
+    opendatahub.io/template-name: diffusers-runtime-pvc
+    openshift.io/display-name: redhat-dog-pvc
+  name: redhat-dog-pvc
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  annotations:
+    prometheus.kserve.io/path: /metrics
+    prometheus.kserve.io/port: '8888'
+  containers:
+    - image: 'quay.io/cfchase/diffusers-runtime:v0.1'
+      imagePullPolicy: Always
+      name: kserve-container
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+  multiModel: false
+  protocolVersions:
+    - v1
+  supportedModelFormats:
+    - autoSelect: true
+      name: pytorch
+      version: '1'
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+      name: shm
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: Red Hat Dog PVC
+    serving.kserve.io/deploymentMode: RawDeployment
+  name: redhat-dog-pvc
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      modelFormat:
+        name: pytorch
+        version: '1'
+      name: ''
+      resources:
+        limits:
+          cpu: '6'
+          memory: 48Gi
+          nvidia.com/gpu: '1'
+        requests:
+          cpu: '1'
+          memory: 8Gi
+          nvidia.com/gpu: '1'
+      runtime: redhat-dog-pvc
+      storageUri: 'pvc://models/stable_diffusion_weights/redhat-dog'
+    tolerations:
+      - effect: NoSchedule
+        key: nvidia.com/gpu
+        operator: Exists

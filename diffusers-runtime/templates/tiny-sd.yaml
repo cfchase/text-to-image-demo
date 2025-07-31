@@ -1,0 +1,69 @@
+---
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/template-display-name: Diffusers Runtime (CPU)
+    opendatahub.io/template-name: diffusers-runtime-cpu
+    openshift.io/display-name: tiny-sd
+  name: tiny-sd
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  annotations:
+    prometheus.kserve.io/path: /metrics
+    prometheus.kserve.io/port: '8888'
+  containers:
+    - image: 'quay.io/cfchase/diffusers-runtime:latest'
+      imagePullPolicy: Always
+      name: kserve-container
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+      env:
+        - name: MODEL_ID
+          value: "segmind/tiny-sd"
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+  multiModel: false
+  protocolVersions:
+    - v1
+  supportedModelFormats:
+    - autoSelect: true
+      name: pytorch
+      version: '1'
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+      name: shm
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    openshift.io/display-name: Tiny SD (CPU Test)
+    serving.kserve.io/deploymentMode: RawDeployment
+  name: tiny-sd
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    maxReplicas: 1
+    minReplicas: 1
+    model:
+      modelFormat:
+        name: pytorch
+        version: '1'
+      name: ''
+      resources:
+        limits:
+          cpu: '4'
+          memory: 8Gi
+        requests:
+          cpu: '1'
+          memory: 4Gi
+      runtime: tiny-sd
