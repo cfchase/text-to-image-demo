@@ -1,0 +1,11 @@
+{
+  "error": "Model inference failed due to invalid parameters",
+  "code": "INFERENCE_ERROR",
+  "details": {
+    "timestamp": "2024-01-01T12:00:00Z",
+    "request_id": "req_error_123456789",
+    "model_name": "stable-diffusion",
+    "error_type": "ValidationError",
+    "message": "Prompt cannot be empty"
+  }
+}

@@ -1,0 +1,1 @@
+"""Tests for MCP Image Generation Server."""

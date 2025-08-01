@@ -1,0 +1,151 @@
+# Coverage configuration for MCP Image Generation Server
+# This file configures pytest-cov for comprehensive code coverage reporting
+
+[run]
+# Source code to measure coverage for
+source = src
+
+# Include patterns - measure coverage for all Python files in src/
+include = 
+    src/*
+    src/*/*
+    src/*/*/*
+
+# Exclude patterns - don't measure coverage for these files
+omit = 
+    # Test files themselves
+    tests/*
+    */tests/*
+    
+    # Development and build files
+    setup.py
+    */setup.py
+    
+    # Virtual environments
+    */venv/*
+    */env/*
+    */.venv/*
+    */.env/*
+    
+    # Generated files
+    */build/*
+    */dist/*
+    */__pycache__/*
+    *.pyc
+    
+    # IDE and editor files
+    */.vscode/*
+    */.idea/*
+    
+    # Main entry points (often hard to test comprehensively)
+    src/main.py
+    */main.py
+
+# Branch coverage - measure both line and branch coverage
+branch = True
+
+# Parallel processing - allow coverage measurement with multiple processes
+parallel = True
+
+# Data file location
+data_file = .coverage
+
+# Include context information
+context = ${CONTEXT}
+
+[report]
+# Reporting options
+
+# Skip covered files in report (only show files with missing coverage)
+skip_covered = False
+
+# Skip empty files
+skip_empty = True
+
+# Show missing line numbers in report
+show_missing = True
+
+# Report precision for percentages
+precision = 2
+
+# Sort the report by coverage percentage (ascending)
+sort = Cover
+
+# Exclude lines from coverage reporting
+exclude_lines =
+    # Standard pragma to exclude lines
+    pragma: no cover
+    
+    # Don't complain about missing debug-only code
+    def __repr__
+    if self\.debug
+    
+    # Don't complain if tests don't hit defensive assertion code
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Don't complain if non-runnable code isn't run
+    if 0:
+    if False:
+    if __name__ == .__main__.:
+    
+    # Don't complain about abstract methods
+    @(abc\.)?abstractmethod
+    
+    # Don't complain about type checking imports
+    if TYPE_CHECKING:
+    
+    # Don't complain about platform-specific code
+    except ImportError:
+    
+    # Don't complain about logger setup that might not be called in tests
+    logger = 
+    
+    # Don't complain about async context manager cleanup
+    async def __aenter__
+    async def __aexit__
+    
+    # Don't complain about property setters that might not be used in tests
+    @property
+    @.*\.setter
+
+# Fail the build if coverage is below this threshold
+fail_under = 80
+
+[html]
+# HTML report configuration
+directory = htmlcov
+title = MCP Image Server Coverage Report
+
+# Include extra annotations in HTML report
+extra_css = 
+show_contexts = True
+
+[xml]
+# XML report configuration (for CI/CD integration)
+output = coverage.xml
+
+[json]
+# JSON report configuration
+output = coverage.json
+pretty_print = True
+show_contexts = True
+
+# Custom contexts for different test types
+[contexts]
+# Define different contexts for different types of tests
+unit = tests/unit/*
+integration = tests/integration/*  
+storage = tests/unit/storage/*
+kserve = tests/unit/kserve/*
+api = tests/unit/api/*
+config = tests/unit/config/*
+utils = tests/unit/utils/*
+
+[paths]
+# Path mapping for different environments
+source = 
+    src/
+    */site-packages/
+    /usr/local/lib/python*/site-packages/
+    /opt/*/lib/python*/site-packages/

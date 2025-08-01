@@ -1,0 +1,172 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Documentation build
+docs/_build/
+site/
+
+# Local configuration files
+.env
+.env.local
+.env.*.local
+config.local.yaml
+config.local.yml
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Logs
+*.log
+logs/
+log/
+
+# Runtime data
+storage/
+images/
+data/
+.data/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if any frontend assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker files in subdirectories (avoid nested builds)
+**/Dockerfile
+**/.dockerignore
+
+# Deployment files that shouldn't be in container
+deployment/
+k8s/
+helm/
+terraform/
+ansible/
+
+# CI/CD files
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Documentation source files (keep only built docs)
+*.md
+docs/
+ARCHITECTURE.md
+DEVELOPMENT_PLAN.md
+WORKER_COORDINATION.md
+CODING_STANDARDS.md
+INTERFACES.md
+
+# Keep only essential README
+!README.md
+
+# Test files (exclude from production builds)
+tests/
+test_*.py
+*_test.py
+conftest.py
+
+# MyPy cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Package manager files that might conflict
+Pipfile
+Pipfile.lock
+poetry.lock
+requirements*.txt
+
+# Development scripts
+scripts/
+dev/
+tools/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Large files that shouldn't be in containers
+*.iso
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# Security sensitive files
+secrets/
+.secrets/
+private_keys/
+certificates/
+*.pem
+*.key
+*.crt
+*.p12

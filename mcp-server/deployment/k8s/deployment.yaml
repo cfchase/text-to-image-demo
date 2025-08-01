@@ -1,0 +1,361 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-image-server
+  labels:
+    app: mcp-image-server
+    component: api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: mcp-image-server
+  template:
+    metadata:
+      labels:
+        app: mcp-image-server
+        component: api
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      serviceAccountName: mcp-image-server
+      containers:
+      - name: mcp-server
+        image: mcp-image-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: SERVICE_NAME
+          value: "mcp-image-server"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        - name: WORKERS
+          value: "4"
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: log_level
+        - name: STORAGE_BACKEND
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: storage_backend
+        - name: STORAGE_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: storage_path
+        - name: S3_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: s3_bucket
+              optional: true
+        - name: S3_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: s3_prefix
+              optional: true
+        - name: S3_ENDPOINT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: s3_endpoint_url
+              optional: true
+        - name: AWS_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: aws_region
+              optional: true
+        - name: KSERVE_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: kserve_endpoint
+        - name: KSERVE_MODEL_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: kserve_model_name
+        - name: KSERVE_TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: kserve_timeout
+        - name: KSERVE_MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: kserve_max_retries
+        - name: IMAGE_CLEANUP_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: image_cleanup_interval
+        - name: IMAGE_TTL
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: image_ttl
+        - name: MAX_IMAGE_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: mcp-image-server-config
+              key: max_image_size
+        # Secrets (only loaded when using S3)
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: mcp-image-server-secrets
+              key: aws_access_key_id
+              optional: true
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mcp-image-server-secrets
+              key: aws_secret_access_key
+              optional: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+            ephemeral-storage: "5Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 12
+          successThreshold: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: storage-volume
+          mountPath: /app/storage
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: logs-volume
+          mountPath: /app/logs
+        env:
+        # Override storage path if using PVC
+        - name: STORAGE_PATH
+          value: "/app/storage"
+      volumes:
+      - name: storage-volume
+        # For file storage: use PVC for persistent storage across pods
+        persistentVolumeClaim:
+          claimName: mcp-image-server-storage
+        # Alternative: use emptyDir for single-pod deployments
+        # emptyDir:
+        #   sizeLimit: 10Gi
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: logs-volume
+        emptyDir:
+          sizeLimit: 1Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - mcp-image-server
+              topologyKey: kubernetes.io/hostname
+      tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 300
+
+---
+# ServiceAccount for the deployment
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mcp-image-server
+  labels:
+    app: mcp-image-server
+
+---
+# PersistentVolumeClaim for file storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mcp-image-server-storage
+  labels:
+    app: mcp-image-server
+spec:
+  accessModes:
+    - ReadWriteMany  # Required for multi-pod file storage
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: ""  # Use default storage class or specify as needed
+
+---
+# HorizontalPodAutoscaler for automatic scaling
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mcp-image-server-hpa
+  labels:
+    app: mcp-image-server
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mcp-image-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+
+---
+# PodDisruptionBudget to ensure availability during updates
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mcp-image-server-pdb
+  labels:
+    app: mcp-image-server
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mcp-image-server
+
+---
+# NetworkPolicy for security (optional)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-image-server-netpol
+  labels:
+    app: mcp-image-server
+spec:
+  podSelector:
+    matchLabels:
+      app: mcp-image-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector: {}  # Allow from any namespace
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS for KServe and S3
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow HTTP for KServe
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+  # Allow custom KServe ports
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 8080

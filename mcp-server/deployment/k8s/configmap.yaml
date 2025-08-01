@@ -1,0 +1,232 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config
+  labels:
+    app: mcp-image-server
+    component: config
+data:
+  # Service Configuration
+  log_level: "INFO"
+  
+  # Storage Configuration
+  storage_backend: "file"  # Options: "file" or "s3"
+  storage_path: "/app/storage"
+  
+  # S3 Configuration (used when storage_backend=s3)
+  s3_bucket: ""  # Set this for S3 storage
+  s3_prefix: "mcp-images/"
+  s3_endpoint_url: ""  # Leave empty for AWS S3, set for MinIO/other S3-compatible
+  aws_region: "us-east-1"
+  
+  # KServe Configuration
+  kserve_endpoint: "http://diffusers-runtime.default.svc.cluster.local:8080/v1/models/stable-diffusion"
+  kserve_model_name: "stable-diffusion"
+  kserve_timeout: "60.0"
+  kserve_max_retries: "3"
+  
+  # Image Management
+  image_cleanup_interval: "300"  # 5 minutes
+  image_ttl: "3600"  # 1 hour
+  max_image_size: "10485760"  # 10MB
+
+---
+# ConfigMap for different environments
+
+# Development environment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config-dev
+  labels:
+    app: mcp-image-server
+    component: config
+    environment: development
+data:
+  log_level: "DEBUG"
+  storage_backend: "file"
+  storage_path: "/app/storage"
+  kserve_endpoint: "http://localhost:8080/v1/models/stable-diffusion"
+  kserve_model_name: "stable-diffusion"
+  kserve_timeout: "30.0"
+  kserve_max_retries: "1"
+  image_cleanup_interval: "60"  # 1 minute for faster testing
+  image_ttl: "300"  # 5 minutes for testing
+  max_image_size: "10485760"
+
+---
+# Production environment with S3
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config-prod-s3
+  labels:
+    app: mcp-image-server
+    component: config
+    environment: production
+    storage: s3
+data:
+  log_level: "INFO"
+  storage_backend: "s3"
+  s3_bucket: "mcp-image-generation-prod"
+  s3_prefix: "images/"
+  s3_endpoint_url: ""  # AWS S3
+  aws_region: "us-east-1"
+  kserve_endpoint: "http://diffusers-runtime.ml-workloads.svc.cluster.local:8080/v1/models/stable-diffusion"
+  kserve_model_name: "stable-diffusion"
+  kserve_timeout: "120.0"  # Longer timeout for production
+  kserve_max_retries: "3"
+  image_cleanup_interval: "1800"  # 30 minutes
+  image_ttl: "7200"  # 2 hours
+  max_image_size: "20971520"  # 20MB for production
+
+---
+# Production environment with file storage (PVC)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config-prod-file
+  labels:
+    app: mcp-image-server
+    component: config
+    environment: production
+    storage: file
+data:
+  log_level: "INFO"
+  storage_backend: "file"
+  storage_path: "/app/storage"
+  kserve_endpoint: "http://diffusers-runtime.ml-workloads.svc.cluster.local:8080/v1/models/stable-diffusion"
+  kserve_model_name: "stable-diffusion"
+  kserve_timeout: "120.0"
+  kserve_max_retries: "3"
+  image_cleanup_interval: "1800"  # 30 minutes
+  image_ttl: "7200"  # 2 hours
+  max_image_size: "20971520"  # 20MB
+
+---
+# Staging environment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config-staging
+  labels:
+    app: mcp-image-server
+    component: config
+    environment: staging
+data:
+  log_level: "INFO"
+  storage_backend: "s3"
+  s3_bucket: "mcp-image-generation-staging"
+  s3_prefix: "images/"
+  s3_endpoint_url: ""
+  aws_region: "us-east-1"
+  kserve_endpoint: "http://diffusers-runtime.staging.svc.cluster.local:8080/v1/models/stable-diffusion"
+  kserve_model_name: "stable-diffusion"
+  kserve_timeout: "60.0"
+  kserve_max_retries: "2"
+  image_cleanup_interval: "900"  # 15 minutes
+  image_ttl: "3600"  # 1 hour
+  max_image_size: "15728640"  # 15MB
+
+---
+# ConfigMap for custom KServe endpoints
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-kserve-configs
+  labels:
+    app: mcp-image-server
+    component: config
+    type: kserve-endpoints
+data:
+  # Different model endpoints
+  stable_diffusion_endpoint: "http://diffusers-runtime.default.svc.cluster.local:8080/v1/models/stable-diffusion"
+  stable_diffusion_xl_endpoint: "http://diffusers-runtime-xl.default.svc.cluster.local:8080/v1/models/stable-diffusion-xl"
+  dreambooth_endpoint: "http://dreambooth-runtime.default.svc.cluster.local:8080/v1/models/dreambooth"
+  
+  # Model names
+  stable_diffusion_model: "stable-diffusion"
+  stable_diffusion_xl_model: "stable-diffusion-xl"
+  dreambooth_model: "dreambooth"
+
+---
+# ConfigMap for feature flags and advanced settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-features
+  labels:
+    app: mcp-image-server
+    component: config
+    type: features
+data:
+  # Feature flags
+  enable_metrics: "true"
+  enable_tracing: "false"
+  enable_debug_endpoints: "false"
+  enable_image_preview: "true"
+  enable_batch_generation: "false"
+  
+  # Advanced settings
+  worker_timeout: "300"  # 5 minutes
+  max_concurrent_generations: "10"
+  rate_limit_requests_per_minute: "60"
+  enable_request_logging: "true"
+  log_image_metadata: "true"
+  
+  # Cache settings
+  enable_response_cache: "false"
+  cache_ttl_seconds: "300"
+  max_cache_size_mb: "100"
+
+---
+# ConfigMap for logging configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-logging
+  labels:
+    app: mcp-image-server
+    component: config
+    type: logging
+data:
+  # Structured logging configuration (JSON format)
+  logging.json: |
+    {
+      "version": 1,
+      "disable_existing_loggers": false,
+      "formatters": {
+        "structured": {
+          "()": "structlog.stdlib.ProcessorFormatter",
+          "processor": "structlog.dev.ConsoleRenderer",
+          "foreign_pre_chain": [
+            "structlog.stdlib.add_log_level",
+            "structlog.stdlib.add_logger_name",
+            "structlog.stdlib.PositionalArgumentsFormatter"
+          ]
+        }
+      },
+      "handlers": {
+        "console": {
+          "class": "logging.StreamHandler",
+          "formatter": "structured",
+          "stream": "ext://sys.stdout"
+        }
+      },
+      "loggers": {
+        "mcp_server": {
+          "level": "INFO",
+          "handlers": ["console"],
+          "propagate": false
+        },
+        "uvicorn": {
+          "level": "INFO",
+          "handlers": ["console"],
+          "propagate": false
+        }
+      },
+      "root": {
+        "level": "WARNING",
+        "handlers": ["console"]
+      }
+    }

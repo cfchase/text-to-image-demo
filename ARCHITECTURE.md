@@ -104,8 +104,17 @@ Dual-model serving architecture supporting both text and image generation:
 
 #### 2. Image Gen MCP Server
 - **Purpose**: Model Context Protocol server bridging external applications to diffusers runtime
-- **Function**: Translates MCP requests to KServe inference calls
-- **Benefits**: Modern tooling approach for AI application integration
+- **Architecture**:
+  - FastMCP-based server exposing image generation as AI tool
+  - Dual storage backends (file system and S3) with automatic cleanup
+  - HTTP API endpoints for image serving with URL-based delivery
+  - Full async/await implementation with retry logic
+- **Function**: Translates MCP tool calls to KServe inference requests
+- **Benefits**: 
+  - Modern tooling approach for AI application integration
+  - Standardized protocol for AI assistants and agents
+  - Efficient image delivery via HTTP URLs instead of base64
+  - Automatic cleanup of expired images based on TTL
 
 ## Data Flow
 
@@ -129,16 +138,25 @@ Dual-model serving architecture supporting both text and image generation:
 - **Serving**: KServe with vLLM and custom runtimes
 - **Pipelines**: Kubeflow Pipelines
 - **Models**: Stable Diffusion 3.5, Llama 4, custom Dreambooth fine-tuned models
-- **Integration**: Model Context Protocol (MCP)
+- **Integration**: Model Context Protocol (MCP) with FastMCP 2.10.6
 - **Container**: Podman/Docker with GPU support
+- **API Framework**: FastAPI for HTTP endpoints, httpx for async clients
+- **Storage**: S3-compatible (boto3/aioboto3) and local file system
 
 ## Deployment Templates
 
 The project includes multiple deployment templates for different use cases:
 
+### Diffusers Runtime Templates
 - `redhat-dog.yaml` - S3 storage-based deployment
 - `redhat-dog-pvc.yaml` - PVC storage-based deployment  
 - `redhat-dog-hf.yaml` - HuggingFace Hub direct loading
 - `tiny-sd.yaml/tiny-sd-gpu.yaml` - Lightweight test deployments
 
-This architecture demonstrates a complete MLOps pipeline from research through production, showcasing modern AI application development practices on enterprise Kubernetes platforms.
+### MCP Server Deployment
+- `mcp-server/deployment/k8s/deployment.yaml` - Main MCP server deployment
+- `mcp-server/deployment/k8s/service.yaml` - Service exposing HTTP endpoints
+- `mcp-server/deployment/k8s/configmap.yaml` - Configuration management
+- `mcp-server/deployment/k8s/secret.yaml` - Credentials for S3/KServe
+
+This architecture demonstrates a complete MLOps pipeline from research through production, showcasing modern AI application development practices on enterprise Kubernetes platforms with cutting-edge AI tool integration.

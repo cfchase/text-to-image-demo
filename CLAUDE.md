@@ -28,6 +28,26 @@ oc apply -f templates/redhat-dog-hf.yaml   # HuggingFace Hub direct loading
 oc apply -f templates/tiny-sd-gpu.yaml     # Lightweight test deployment
 ```
 
+### MCP Server (from mcp-server/)
+```bash
+# Development
+make install                          # Install dependencies
+make test                             # Run unit tests
+make lint                             # Run linting checks
+make format                           # Format code
+make run                              # Run server in development mode
+
+# Docker
+make docker-build                     # Build Docker image
+make docker-run                       # Run Docker container
+make docker-push                      # Push to registry
+
+# Kubernetes
+make k8s-deploy                       # Deploy to Kubernetes
+make k8s-logs                         # View pod logs
+make k8s-port-forward                 # Port forward to service
+```
+
 ### Python Dependencies
 ```bash
 # Two-stage installation to handle flash-attn build dependencies
@@ -64,6 +84,11 @@ Notebooks should be run in sequence:
   - pipeline_loader.py: Universal DiffusionPipeline loading for any Stable Diffusion model
   - Handles v1 inference protocol with configurable optimizations
   - Supports multiple deployment modes (S3, PVC, HuggingFace Hub)
+- **mcp-server/**: Model Context Protocol (MCP) server for AI tool integration
+  - FastMCP-based server exposing image generation as an AI tool
+  - Dual storage backends (file and S3) with automatic cleanup
+  - HTTP API for image serving with URL-based delivery
+  - Full async/await implementation with comprehensive error handling
 - **setup/**: OpenShift/Kubernetes manifests for deployment
 
 ### Data Flow

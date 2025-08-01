@@ -1,0 +1,15 @@
+{
+  "healthy": {
+    "ready": true,
+    "live": true,
+    "model_ready": true,
+    "timestamp": "2024-01-01T12:00:00Z"
+  },
+  "unhealthy": {
+    "ready": false,
+    "live": true,
+    "model_ready": false,
+    "timestamp": "2024-01-01T12:00:00Z",
+    "error": "Model not loaded"
+  }
+}

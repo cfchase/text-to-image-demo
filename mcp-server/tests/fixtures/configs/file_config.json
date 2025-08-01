@@ -1,0 +1,5 @@
+{
+  "storage_backend": "file",
+  "storage_path": "/tmp/test-mcp-images",
+  "base_url": "http://localhost:8000/images"
+}

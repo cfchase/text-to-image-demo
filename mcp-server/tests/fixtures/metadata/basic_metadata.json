@@ -1,0 +1,15 @@
+{
+  "image_id": "img_12345678-1234-1234-1234-123456789abc",
+  "prompt": "a beautiful sunset over mountains",
+  "negative_prompt": "blurry, low quality",
+  "width": 512,
+  "height": 512,
+  "num_inference_steps": 50,
+  "guidance_scale": 7.5,
+  "seed": 42,
+  "model_name": "stable-diffusion-v1-5",
+  "generation_time": 3.2,
+  "created_at": "2024-01-01T12:00:00Z",
+  "format": "png",
+  "size": 65536
+}

@@ -1,0 +1,9 @@
+{
+  "image_id": "",
+  "prompt": "",
+  "width": -1,
+  "height": "invalid",
+  "guidance_scale": 100.0,
+  "num_inference_steps": 0,
+  "seed": "not_a_number"
+}
