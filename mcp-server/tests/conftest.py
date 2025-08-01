@@ -11,16 +11,16 @@ import pytest
 import pytest_asyncio
 from httpx import AsyncClient
 
-from mcp_server.config.settings import Settings
-from mcp_server.storage.base import AbstractStorage
-from mcp_server.kserve.client import KServeClient
-from mcp_server.kserve.models import (
+from config.settings import Settings
+from storage.base import AbstractStorage
+from kserve.client import KServeClient
+from kserve.models import (
     InternalImageRequest,
     InternalImageResponse,
     KServeInferenceResponse,
     KServePrediction,
 )
-from mcp_server.utils.ids import generate_image_id
+from utils.ids import generate_image_id
 
 
 # Pytest configuration

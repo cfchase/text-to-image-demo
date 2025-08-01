@@ -116,10 +116,12 @@ def is_valid_uuid(uuid_string: str) -> bool:
     Returns:
         True if valid UUID, False otherwise
     """
+    if not uuid_string:
+        return False
     try:
         uuid.UUID(uuid_string)
         return True
-    except (ValueError, AttributeError):
+    except (ValueError, AttributeError, TypeError):
         return False
 
 

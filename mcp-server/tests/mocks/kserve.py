@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from unittest.mock import Mock
 
-from mcp_server.kserve.exceptions import (
+from kserve.exceptions import (
     KServeConnectionError,
     KServeError,
     KServeInferenceError,
@@ -17,7 +17,7 @@ from mcp_server.kserve.exceptions import (
     KServeTimeoutError,
     KServeValidationError,
 )
-from mcp_server.kserve.models import (
+from kserve.models import (
     InternalImageRequest,
     InternalImageResponse,
     KServeModelMetadata,

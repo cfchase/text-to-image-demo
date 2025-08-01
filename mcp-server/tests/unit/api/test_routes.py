@@ -5,16 +5,16 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 
-from mcp_server.api.routes import (
+from api.routes import (
     delete_image,
     get_image,
     get_image_metadata,
     list_images,
     manual_cleanup,
 )
-from mcp_server.config.settings import Settings
-from mcp_server.storage.base import ImageNotFoundError
-from mcp_server.utils.images import ImageFormatError
+from config.settings import Settings
+from storage.base import ImageNotFoundError
+from utils.images import ImageFormatError
 
 
 class TestGetImage:

@@ -6,9 +6,9 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from fastapi.responses import StreamingResponse
 
-from mcp_server.config.settings import Settings
-from mcp_server.storage.base import AbstractStorage, ImageNotFoundError
-from mcp_server.utils.images import get_mime_type, detect_image_format
+from config.settings import Settings
+from storage.base import AbstractStorage, ImageNotFoundError
+from utils.images import get_mime_type, detect_image_format
 
 # Get logger
 logger = structlog.get_logger(__name__)
@@ -20,14 +20,14 @@ router = APIRouter()
 async def get_storage() -> AbstractStorage:
     """Get storage backend dependency."""
     # Import here to avoid circular imports
-    from mcp_server.api.app import get_storage as _get_storage
+    from api.app import get_storage as _get_storage
     return _get_storage()
 
 
 async def get_settings() -> Settings:
     """Get settings dependency."""
     # Import here to avoid circular imports
-    from mcp_server.api.app import get_settings as _get_settings
+    from api.app import get_settings as _get_settings
     return _get_settings()
 
 

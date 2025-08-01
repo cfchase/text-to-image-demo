@@ -9,9 +9,9 @@ import structlog
 import uvicorn
 from fastapi import FastAPI
 
-from mcp_server.api.app import create_app
-from mcp_server.config.settings import Settings
-from mcp_server.utils.logging import configure_logging
+from api.app import create_app
+from config.settings import Settings
+from utils.logging import configure_logging
 
 # Get logger
 logger = structlog.get_logger(__name__)

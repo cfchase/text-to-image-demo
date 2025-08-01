@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from botocore.exceptions import ClientError, NoCredentialsError
 
-from mcp_server.storage.s3 import S3Storage
-from mcp_server.storage.base import StorageError
+from storage.s3 import S3Storage
+from storage.base import StorageError
 
 
 class TestS3Storage:

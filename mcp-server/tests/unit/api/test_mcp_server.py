@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from mcp_server.api.mcp_server import (
+from api.mcp_server import (
     GenerateImageParams,
     GenerateImageResponse,
     ImageGenerationError,
@@ -13,11 +13,11 @@ from mcp_server.api.mcp_server import (
     ValidationError,
     create_mcp_server,
 )
-from mcp_server.config.settings import Settings
-from mcp_server.kserve.exceptions import KServeError, KServeValidationError
-from mcp_server.kserve.models import InternalImageResponse
-from mcp_server.storage.base import AbstractStorage, StorageError as BaseStorageError
-from mcp_server.utils.images import ImageValidationError
+from config.settings import Settings
+from kserve.exceptions import KServeError, KServeValidationError
+from kserve.models import InternalImageResponse
+from storage.base import AbstractStorage, StorageError as BaseStorageError
+from utils.images import ImageValidationError
 
 
 class TestGenerateImageParams:

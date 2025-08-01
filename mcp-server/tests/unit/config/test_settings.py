@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from mcp_server.config import ConfigurationError, Settings
+from config import ConfigurationError, Settings
 
 
 class TestSettings:

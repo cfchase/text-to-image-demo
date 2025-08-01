@@ -1,6 +1,7 @@
 """Unit tests for FileStorage implementation."""
 
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -8,8 +9,8 @@ from typing import Any, Dict
 
 import pytest
 
-from mcp_server.storage.file import FileStorage
-from mcp_server.storage.base import StorageError
+from storage.file import FileStorage
+from storage.base import StorageError
 
 
 class TestFileStorage:
@@ -290,7 +291,7 @@ class TestFileStorage:
         # Manually set old modification time
         image_path = storage.base_path / f"{image_id}.png"
         old_time = time.time() - 3600  # 1 hour ago
-        image_path.touch(times=(old_time, old_time))
+        os.utime(image_path, (old_time, old_time))
         
         # Cleanup with 30 minute TTL should delete the image
         deleted_count = await storage.cleanup_expired_images(ttl_seconds=1800)
@@ -313,7 +314,7 @@ class TestFileStorage:
         await storage.save_image(sample_image_data, "old", sample_metadata)
         old_image_path = storage.base_path / "old.png"
         old_time = time.time() - 3600  # 1 hour ago
-        old_image_path.touch(times=(old_time, old_time))
+        os.utime(old_image_path, (old_time, old_time))
         
         # Cleanup should only delete old image
         deleted_count = await storage.cleanup_expired_images(ttl_seconds=1800)

@@ -6,7 +6,7 @@ from typing import Optional
 
 import structlog
 
-from mcp_server.storage.base import AbstractStorage
+from storage.base import AbstractStorage
 
 # Get logger
 logger = structlog.get_logger(__name__)

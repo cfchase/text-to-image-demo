@@ -5,12 +5,12 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timezone
 
-from mcp_server.api.background import (
+from api.background import (
     BackgroundTaskManager,
     CleanupTask,
     HealthCheckTask,
 )
-from mcp_server.storage.base import AbstractStorage
+from storage.base import AbstractStorage
 
 
 class TestCleanupTask:

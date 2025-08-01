@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "fastmcp==2.10.6",
-    "httpx>=0.24.0",
+    "httpx>=0.27.2,<0.28.0",
     "boto3>=1.26.0",
     "aiofiles>=23.0.0",
     "pydantic>=2.0.0",
@@ -46,7 +46,7 @@ dev = [
 ]
 
 [project.scripts]
-mcp-image-server = "mcp_server.main:main"
+mcp-image-server = "main:main"
 
 [tool.black]
 line-length = 88

@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_server.utils.ids import (
+from utils.ids import (
     IDGenerator,
     extract_prefix_from_id,
     extract_uuid_from_id,

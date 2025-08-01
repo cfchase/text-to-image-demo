@@ -7,12 +7,12 @@ import structlog
 from fastmcp import FastMCP
 from pydantic import BaseModel, Field
 
-from mcp_server.config.settings import Settings
-from mcp_server.kserve.client import KServeClient
-from mcp_server.kserve.exceptions import KServeError
-from mcp_server.storage.base import AbstractStorage
-from mcp_server.utils.ids import generate_image_id
-from mcp_server.utils.images import (
+from config.settings import Settings
+from kserve.client import KServeClient
+from kserve.exceptions import KServeError
+from storage.base import AbstractStorage
+from utils.ids import generate_image_id
+from utils.images import (
     decode_image_base64,
     validate_image,
     ImageValidationError,
@@ -86,12 +86,11 @@ class MCPImageServer:
         # Create FastMCP app
         self.app = FastMCP("MCP Image Generation Server")
         
-        # Register the generate_image tool
-        self.app.add_tool(
-            self.generate_image,
-            name="generate_image",
-            description="Generate an image from a text prompt using Stable Diffusion"
-        )
+        # Register the generate_image tool using decorator pattern
+        @self.app.tool()
+        async def generate_image(params: GenerateImageParams) -> GenerateImageResponse:
+            """Generate an image from a text prompt using Stable Diffusion"""
+            return await self.generate_image(params)
         
         logger.info(
             "MCP image server initialized",

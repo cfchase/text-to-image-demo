@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from unittest.mock import Mock
 
-from mcp_server.storage.base import AbstractStorage, ImageNotFoundError, StorageError
+from storage.base import AbstractStorage, ImageNotFoundError, StorageError
 
 
 class MockStorage(AbstractStorage):

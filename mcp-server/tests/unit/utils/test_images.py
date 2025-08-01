@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from mcp_server.utils.images import (
+from utils.images import (
     FORMAT_EXTENSIONS,
     FORMAT_MIME_TYPES,
     SUPPORTED_EXTENSIONS,
@@ -41,16 +41,18 @@ def create_png_data(width=100, height=100):
     """Create minimal valid PNG data."""
     header = b"\x89PNG\r\n\x1a\n"
     # IHDR chunk
-    ihdr = b"IHDR"
-    ihdr += width.to_bytes(4, "big")  # width
-    ihdr += height.to_bytes(4, "big")  # height
-    ihdr += b"\x08\x02\x00\x00\x00"  # bit_depth, color_type, compression, filter, interlace
+    ihdr_data = b""
+    ihdr_data += width.to_bytes(4, "big")  # width
+    ihdr_data += height.to_bytes(4, "big")  # height
+    ihdr_data += b"\x08\x02\x00\x00\x00"  # bit_depth, color_type, compression, filter, interlace
     
-    # Calculate CRC (simplified - not actual CRC32)
-    crc = b"\x00\x00\x00\x00"
+    # IHDR chunk = length + type + data + crc
+    ihdr_chunk = b"\x00\x00\x00\x0d"  # length = 13
+    ihdr_chunk += b"IHDR"  # type
+    ihdr_chunk += ihdr_data  # data
+    ihdr_chunk += b"\x00\x00\x00\x00"  # simplified CRC
     
-    chunk = len(ihdr[4:]).to_bytes(4, "big") + ihdr + crc
-    return header + chunk + b"IEND\xaeB`\x82"  # Minimal end chunk
+    return header + ihdr_chunk + b"\x00\x00\x00\x00IEND\xaeB`\x82"  # Minimal end chunk
 
 def create_jpeg_data():
     """Create minimal valid JPEG data."""
@@ -175,7 +177,7 @@ class TestImageDimensions:
         mock_image = Mock()
         mock_image.size = (300, 200)
         
-        with patch('mcp_server.utils.images.Image') as mock_pil:
+        with patch('PIL.Image') as mock_pil:
             mock_pil.open.return_value.__enter__.return_value = mock_image
             
             dimensions = get_image_dimensions(test_data)

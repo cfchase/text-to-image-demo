@@ -14,8 +14,8 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_server.utils.ids import generate_image_id
-from mcp_server.utils.images import SUPPORTED_FORMATS, validate_image
+from utils.ids import generate_image_id
+from utils.images import SUPPORTED_FORMATS, validate_image
 
 
 class TestImageGenerator:

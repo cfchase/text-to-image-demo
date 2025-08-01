@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from mcp_server.utils.logging import (
+from utils.logging import (
     STRUCTLOG_AVAILABLE,
     RequestLoggingMiddleware,
     bind_context,
@@ -246,7 +246,7 @@ class TestLogging:
 
     def test_logger_fallback_without_structlog(self):
         """Test logger fallback when structlog is not available."""
-        with patch('mcp_server.utils.logging.STRUCTLOG_AVAILABLE', False):
+        with patch('utils.logging.STRUCTLOG_AVAILABLE', False):
             configure_logging(development=True)
             
             logger = get_logger("test")

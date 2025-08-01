@@ -452,14 +452,17 @@ class TestKServeClient:
         """Test client with custom connection limits."""
         custom_limits = httpx.Limits(max_keepalive_connections=5, max_connections=50)
 
-        client = KServeClient(
-            endpoint="http://test.com",
-            model_name="test-model",
-            connection_limits=custom_limits,
-        )
-
-        assert client.client.limits == custom_limits
-        await client.close()
+        with patch("httpx.AsyncClient") as mock_client_class:
+            client = KServeClient(
+                endpoint="http://test.com",
+                model_name="test-model",
+                connection_limits=custom_limits,
+            )
+            
+            # Verify that AsyncClient was called with the custom limits
+            mock_client_class.assert_called_once()
+            call_args = mock_client_class.call_args
+            assert call_args.kwargs["limits"] == custom_limits
 
     async def test_request_headers(self, client):
         """Test that client sets correct headers."""

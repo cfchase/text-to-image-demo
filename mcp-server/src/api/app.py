@@ -9,13 +9,13 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from mcp_server.api.background import CleanupTask
-from mcp_server.api.mcp_server import MCPImageServer, create_mcp_server
-from mcp_server.api.routes import router as images_router
-from mcp_server.config.settings import Settings
-from mcp_server.kserve.client import KServeClient
-from mcp_server.storage import create_storage
-from mcp_server.utils.logging import RequestLoggingMiddleware, configure_logging
+from api.background import CleanupTask
+from api.mcp_server import MCPImageServer, create_mcp_server
+from api.routes import router as images_router
+from config.settings import Settings
+from kserve.client import KServeClient
+from storage import create_storage
+from utils.logging import RequestLoggingMiddleware, configure_logging
 
 # Get logger
 logger = structlog.get_logger(__name__)
@@ -317,7 +317,7 @@ def create_app() -> FastAPI:
         mcp_server: MCPImageServer = Depends(get_mcp_server),
     ) -> Dict[str, Any]:
         """MCP tool endpoint for image generation."""
-        from mcp_server.api.mcp_server import GenerateImageParams
+        from api.mcp_server import GenerateImageParams
         
         try:
             # Parse and validate parameters
