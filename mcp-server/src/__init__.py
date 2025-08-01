@@ -1,0 +1,1 @@
+"""MCP Image Generation Server."""

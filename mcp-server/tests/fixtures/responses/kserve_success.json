@@ -1,0 +1,19 @@
+{
+  "model_name": "stable-diffusion",
+  "model_version": "v1.5",
+  "predictions": [
+    {
+      "image_data": "iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAACUlEQVR4nGIAAAACAAH6zsgUAAAAAElFTkSuQmCC",
+      "metadata": {
+        "prompt": "test prompt for successful generation",
+        "negative_prompt": "blurry, low quality",
+        "width": 512,
+        "height": 512,
+        "num_inference_steps": 50,
+        "guidance_scale": 7.5,
+        "seed": 42,
+        "generation_time": 2.5
+      }
+    }
+  ]
+}

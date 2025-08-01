@@ -1,0 +1,250 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-image-server
+  labels:
+    app: mcp-image-server
+    component: api
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"  # For AWS EKS
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"  # Internal by default
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8000
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: mcp-image-server
+
+---
+# Headless service for direct pod access (useful for debugging)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-image-server-headless
+  labels:
+    app: mcp-image-server
+    component: api
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http
+    port: 8000
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: mcp-image-server
+
+---
+# External service exposure options (choose one based on your needs)
+
+# Option 1: NodePort (for on-premises or development)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-image-server-nodeport
+  labels:
+    app: mcp-image-server
+    component: api
+    exposure: nodeport
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8000
+    targetPort: http
+    protocol: TCP
+    nodePort: 30800  # Choose an available port in the range 30000-32767
+  selector:
+    app: mcp-image-server
+
+---
+# Option 2: LoadBalancer (for cloud providers)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-image-server-lb
+  labels:
+    app: mcp-image-server
+    component: api
+    exposure: loadbalancer
+  annotations:
+    # AWS specific annotations
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:region:account:certificate/cert-id"
+    
+    # Azure specific annotations
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    
+    # GCP specific annotations
+    cloud.google.com/load-balancer-type: "External"
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: http
+    protocol: TCP
+  selector:
+    app: mcp-image-server
+
+---
+# Option 3: Ingress for HTTP/HTTPS routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-image-server-ingress
+  labels:
+    app: mcp-image-server
+    component: api
+  annotations:
+    # NGINX Ingress Controller
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"  # Allow large image uploads/downloads
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"  # 5 minutes for image generation
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    
+    # Cert-manager for TLS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    
+    # Traefik annotations (alternative)
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # traefik.ingress.kubernetes.io/router.tls: "true"
+    
+    # AWS ALB Controller annotations (alternative)
+    # kubernetes.io/ingress.class: alb
+    # alb.ingress.kubernetes.io/scheme: internet-facing
+    # alb.ingress.kubernetes.io/target-type: ip
+spec:
+  tls:
+  - hosts:
+    - mcp-image-server.example.com
+    secretName: mcp-image-server-tls
+  rules:
+  - host: mcp-image-server.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mcp-image-server
+            port:
+              number: 8000
+
+---
+# OpenShift Route (for OpenShift environments)
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mcp-image-server-route
+  labels:
+    app: mcp-image-server
+    component: api
+  annotations:
+    # Enable HTTP/2
+    haproxy.router.openshift.io/h1-adjust-buf-size: "true"
+    # Set timeout for long-running image generation requests
+    haproxy.router.openshift.io/timeout: "300s"
+spec:
+  host: mcp-image-server.apps.cluster.example.com  # Will be auto-generated if not specified
+  to:
+    kind: Service
+    name: mcp-image-server
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+
+---
+# Service Monitor for Prometheus (if using Prometheus Operator)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mcp-image-server-metrics
+  labels:
+    app: mcp-image-server
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: mcp-image-server
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    scheme: http
+
+---
+# Virtual Service for Istio (if using Istio service mesh)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mcp-image-server-vs
+  labels:
+    app: mcp-image-server
+spec:
+  hosts:
+  - mcp-image-server.example.com
+  gateways:
+  - mcp-image-server-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: mcp-image-server
+        port:
+          number: 8000
+    timeout: 300s  # 5 minutes for image generation
+    retries:
+      attempts: 3
+      perTryTimeout: 60s
+
+---
+# Gateway for Istio
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: mcp-image-server-gateway
+  labels:
+    app: mcp-image-server
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - mcp-image-server.example.com
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: mcp-image-server-tls
+    hosts:
+    - mcp-image-server.example.com

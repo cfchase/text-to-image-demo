@@ -1,0 +1,3 @@
+# This directory contains test image fixtures
+# Git doesn't track empty directories, so this file ensures the directory is created
+# Test images will be generated dynamically by the test suite when needed

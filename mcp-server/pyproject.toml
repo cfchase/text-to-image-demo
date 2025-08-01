@@ -27,6 +27,8 @@ dependencies = [
     "python-multipart>=0.0.6",
     "uvicorn[standard]>=0.22.0",
     "fastapi>=0.100.0",
+    "structlog>=23.0.0",
+    "aioboto3>=11.0.0",
 ]
 
 [project.optional-dependencies]

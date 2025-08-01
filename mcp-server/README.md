@@ -29,10 +29,12 @@ python -m mcp_server.main
 
 ```bash
 # Build the container
-docker build -t mcp-image-server .
+docker build -t mcp-image-server -f deployment/docker/Dockerfile .
 
 # Run with local storage
-docker run -p 8000:8000 mcp-image-server
+docker run -p 8000:8000 \
+  -e KSERVE_ENDPOINT="http://host.docker.internal:8080/v1/models/stable-diffusion" \
+  mcp-image-server
 
 # Run with S3 storage
 docker run -p 8000:8000 \
@@ -40,7 +42,17 @@ docker run -p 8000:8000 \
   -e S3_BUCKET=my-bucket \
   -e AWS_ACCESS_KEY_ID=xxx \
   -e AWS_SECRET_ACCESS_KEY=yyy \
+  -e KSERVE_ENDPOINT="http://host.docker.internal:8080/v1/models/stable-diffusion" \
   mcp-image-server
+
+# Development build with live reload
+docker build -t mcp-image-server:dev \
+  --target development \
+  -f deployment/docker/Dockerfile .
+docker run -p 8000:8000 \
+  -v $(pwd)/src:/app/src \
+  -e KSERVE_ENDPOINT="http://host.docker.internal:8080/v1/models/stable-diffusion" \
+  mcp-image-server:dev
 ```
 
 ## Architecture
@@ -119,37 +131,150 @@ mypy src/
 
 ## Deployment
 
-### Kubernetes
+The server supports multiple deployment scenarios:
+
+- **Local Development**: Direct Python execution with file storage
+- **Docker**: Containerized deployment with multi-stage builds
+- **Kubernetes**: Production deployment with scaling and high availability
+- **OpenShift**: Enterprise Kubernetes with additional security features
+
+### Local Development
 
 ```bash
-# Deploy to OpenShift/Kubernetes
+# Set up environment
+export KSERVE_ENDPOINT="http://localhost:8080/v1/models/stable-diffusion"
+export STORAGE_BACKEND="file"
+export STORAGE_PATH="/tmp/mcp-images"
+
+# Run development server
+python -m mcp_server.main dev
+```
+
+### Docker Deployment
+
+```bash
+# Production build
+docker build -t mcp-image-server \
+  --target production \
+  -f deployment/docker/Dockerfile .
+
+# Run with file storage
+docker run -d \
+  --name mcp-image-server \
+  -p 8000:8000 \
+  -v /host/storage:/app/storage \
+  -e KSERVE_ENDPOINT="http://diffusers-runtime:8080/v1/models/stable-diffusion" \
+  mcp-image-server
+
+# Run with S3 storage
+docker run -d \
+  --name mcp-image-server \
+  -p 8000:8000 \
+  -e STORAGE_BACKEND=s3 \
+  -e S3_BUCKET=my-bucket \
+  -e AWS_ACCESS_KEY_ID=your-key \
+  -e AWS_SECRET_ACCESS_KEY=your-secret \
+  -e KSERVE_ENDPOINT="http://diffusers-runtime:8080/v1/models/stable-diffusion" \
+  mcp-image-server
+```
+
+### Kubernetes Deployment
+
+```bash
+# Quick deployment
 kubectl apply -f deployment/k8s/
+
+# Or step by step
+kubectl apply -f deployment/k8s/configmap.yaml
+kubectl apply -f deployment/k8s/secret.yaml      # Configure secrets first
+kubectl apply -f deployment/k8s/deployment.yaml
+kubectl apply -f deployment/k8s/service.yaml
+
+# Check deployment status
+kubectl get pods -l app=mcp-image-server
+kubectl get svc mcp-image-server
 ```
 
-### Configuration for Production
+### Configuration Examples
 
-For production deployments with S3:
-
+**File Storage (PVC)**:
 ```yaml
-env:
-  - name: STORAGE_BACKEND
-    value: "s3"
-  - name: S3_BUCKET
-    valueFrom:
-      secretKeyRef:
-        name: s3-credentials
-        key: bucket
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: s3-credentials
-        key: access-key-id
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: s3-credentials
-        key: secret-access-key
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config
+data:
+  storage_backend: "file"
+  storage_path: "/app/storage"
+  kserve_endpoint: "http://diffusers-runtime.default.svc.cluster.local:8080/v1/models/stable-diffusion"
 ```
+
+**S3 Storage**:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mcp-image-server-config
+data:
+  storage_backend: "s3"
+  s3_bucket: "my-image-bucket"
+  s3_prefix: "mcp-images/"
+  kserve_endpoint: "http://diffusers-runtime.default.svc.cluster.local:8080/v1/models/stable-diffusion"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mcp-image-server-secrets
+type: Opaque
+data:
+  aws_access_key_id: <base64-encoded-key>
+  aws_secret_access_key: <base64-encoded-secret>
+```
+
+### Service Exposure
+
+**LoadBalancer**:
+```bash
+kubectl patch service mcp-image-server -p '{"spec":{"type":"LoadBalancer"}}'
+```
+
+**Ingress**:
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-image-server-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - mcp-image-server.yourdomain.com
+    secretName: mcp-image-server-tls
+  rules:
+  - host: mcp-image-server.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mcp-image-server
+            port:
+              number: 8000
+```
+
+**OpenShift Route**:
+```bash
+oc expose service mcp-image-server --hostname=mcp-image-server.apps.cluster.com
+```
+
+## Documentation
+
+- [DEPLOYMENT.md](docs/DEPLOYMENT.md) - Comprehensive deployment guide
+- [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture details
 
 ## License
 
