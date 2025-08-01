@@ -4,11 +4,27 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 .venv/
 
 # Testing
@@ -16,35 +32,53 @@ venv.bak/
 .pytest_cache/
 htmlcov/
 .tox/
+.nox/
 coverage.xml
 *.cover
 .hypothesis/
+nosetests.xml
 
-# IDE
-.vscode/
+# IDEs
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
 
-# Project specific
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.webp
-/tmp/
-/temp/
-generated_images/
+# Environment files
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 logs/
 
-# OS
-.DS_Store
-Thumbs.db
+# Local data
+/data/
+/tmp/
+/temp/
+
+# Build artifacts
+*.pid
+*.seed
+*.pid.lock
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Local image storage
+/images/
+/mcp-images/
