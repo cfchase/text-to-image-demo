@@ -73,7 +73,8 @@ This demonstration showcases the complete machine learning workflow in Red Hat O
 - **Custom Runtime**: Diffusers runtime for image generation
 - **Model Serving**: Deploy models as REST APIs with multiple storage options
 - **Storage**: S3-compatible object storage, PVC, or HuggingFace Hub integration
-- **External Integration**: MCP server support for modern AI application development
+- **MCP Server**: Model Context Protocol server for AI tool integration
+- **External Integration**: Support for modern AI application development
 
 ## Detailed Setup Instructions
 
@@ -157,6 +158,30 @@ After training your model:
    - Configurable memory optimizations
    - Universal model loading support
 
+### 5. MCP Server Deployment (Optional)
+
+The Model Context Protocol (MCP) server enables AI assistants to use your deployed models:
+
+1. Deploy the MCP server:
+   ```bash
+   cd mcp-server
+   make docker-build
+   make docker-push
+   make k8s-deploy
+   ```
+
+2. Configure environment variables:
+   ```bash
+   # Set KServe endpoint to your deployed model
+   export KSERVE_ENDPOINT=http://redhat-dog-predictor.models.svc.cluster.local:8080
+   export STORAGE_BACKEND=s3  # or file for local storage
+   ```
+
+3. Access the MCP tools:
+   - Image generation tool available at `/mcp/v1/tools/generate_image`
+   - HTTP API for image retrieval at `/images/{image_id}`
+   - Health check at `/health`
+
 ## Project Structure
 
 ```
@@ -194,6 +219,18 @@ text-to-image-demo/
 │       ├── redhat-dog-pvc.yaml    # PVC storage deployment
 │       └── tiny-sd-gpu.yaml       # Lightweight test deployment
 │
+├── mcp-server/                # Model Context Protocol server
+│   ├── src/                  # Source code
+│   │   ├── api/             # FastAPI and MCP endpoints
+│   │   ├── config/          # Configuration management
+│   │   ├── kserve/          # KServe client integration
+│   │   ├── storage/         # File and S3 storage backends
+│   │   └── utils/           # Logging, IDs, image utilities
+│   ├── tests/               # Comprehensive test suite
+│   ├── deployment/          # Docker and Kubernetes configs
+│   ├── Makefile            # Development and deployment commands
+│   └── README.md           # MCP server documentation
+│
 └── setup/                     # Deployment configurations
     └── setup-s3.yaml         # Demo S3 storage setup
 ```
@@ -224,6 +261,11 @@ text-to-image-demo/
 - Test model via REST API
 - Integrate with applications
 - Monitor performance
+
+### 6. MCP Server Deployment (Optional)
+- Deploy Model Context Protocol server
+- Expose image generation as AI tool
+- Enable integration with AI assistants and agents
 
 ## Troubleshooting
 
