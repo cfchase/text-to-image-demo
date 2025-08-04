@@ -96,7 +96,7 @@ class KServeClient:
 
     def _get_inference_url(self) -> str:
         """Get the inference URL for the model."""
-        return f"{self.endpoint}/v1/models/{self.model_name}/infer"
+        return f"{self.endpoint}/v1/models/{self.model_name}:predict"
 
     def _get_metadata_url(self) -> str:
         """Get the metadata URL for the model."""
@@ -247,8 +247,17 @@ class KServeClient:
         prediction = response.predictions[0]
 
         try:
-            # Decode base64 image data
-            image_data = base64.b64decode(prediction.image_data)
+            # Handle different response formats
+            # Try image.b64 first (diffusers runtime format)
+            if prediction.image and isinstance(prediction.image, dict) and 'b64' in prediction.image:
+                image_data = base64.b64decode(prediction.image['b64'])
+            # Fall back to image_data field
+            elif prediction.image_data:
+                image_data = base64.b64decode(prediction.image_data)
+            else:
+                raise KServeInvalidResponseError(
+                    "No image data found in response (checked image.b64 and image_data)"
+                )
         except Exception as e:
             raise KServeInvalidResponseError(
                 f"Failed to decode base64 image data: {str(e)}"

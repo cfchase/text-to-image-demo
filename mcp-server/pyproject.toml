@@ -19,7 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "fastmcp==2.10.6",
-    "httpx>=0.27.2,<0.28.0",
+    "httpx>=0.28.1",
     "boto3>=1.26.0",
     "aiofiles>=23.0.0",
     "pydantic>=2.0.0",
@@ -43,6 +43,7 @@ dev = [
     "mypy>=1.0.0",
     "types-aiofiles",
     "types-boto3",
+    "Pillow>=10.0.0",
 ]
 
 [project.scripts]

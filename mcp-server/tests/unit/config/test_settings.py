@@ -294,7 +294,7 @@ class TestSettings:
         with pytest.raises(ValidationError) as exc_info:
             Settings()
         
-        assert "field required" in str(exc_info.value)
+        assert "Field required" in str(exc_info.value) or "field required" in str(exc_info.value)
 
     def test_env_file_support(self):
         """Test that .env file is supported."""

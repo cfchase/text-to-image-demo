@@ -37,7 +37,7 @@ undeploy: ## Remove tiny-sd InferenceService from OpenShift
 	oc delete -f templates/tiny-sd.yaml
 
 dev: ## Run locally with Python for development (segmind/tiny-sd)
-	MODEL_ID=segmind/tiny-sd python model.py --model_name model
+	MODEL_ID=segmind/tiny-sd .venv/bin/python model.py --model_name model
 
 test-v1: ## Test the running service with a sample request
 	curl -H "Content-Type: application/json" localhost:8080/v1/models/model:predict -d @./scripts/v1_input.json | jq -r '.predictions[0].image.b64' | base64 -d > "example_output.png"

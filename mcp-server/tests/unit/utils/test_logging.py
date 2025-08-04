@@ -182,14 +182,16 @@ class TestLogging:
 
     def test_request_logging_middleware_init(self):
         """Test RequestLoggingMiddleware initialization."""
-        middleware = RequestLoggingMiddleware()
+        mock_app = Mock()
+        middleware = RequestLoggingMiddleware(mock_app)
         assert middleware.generate_request_id is not None
+        assert middleware.app == mock_app
         
         # Test with custom request ID generator
         def custom_id_gen():
             return "custom-123"
         
-        middleware = RequestLoggingMiddleware(generate_request_id=custom_id_gen)
+        middleware = RequestLoggingMiddleware(mock_app, generate_request_id=custom_id_gen)
         assert middleware.generate_request_id() == "custom-123"
 
     @pytest.mark.asyncio
@@ -197,22 +199,41 @@ class TestLogging:
         """Test RequestLoggingMiddleware with successful request."""
         configure_logging(development=True)
         
-        middleware = RequestLoggingMiddleware()
+        # Create mock app that simulates successful processing
+        async def mock_app(scope, receive, send):
+            await send({
+                "type": "http.response.start",
+                "status": 200,
+                "headers": [],
+            })
+            await send({
+                "type": "http.response.body",
+                "body": b"OK",
+            })
         
-        # Mock request and response
-        mock_request = Mock()
-        mock_request.method = "GET"
-        mock_request.url.path = "/test"
+        middleware = RequestLoggingMiddleware(mock_app)
         
-        mock_response = Mock()
-        mock_response.status_code = 200
+        # Create mock ASGI scope
+        scope = {
+            "type": "http",
+            "method": "GET",
+            "path": "/test",
+        }
         
-        async def mock_call_next(request):
-            return mock_response
+        # Mock receive and send callables
+        async def receive():
+            return {"type": "http.request"}
         
-        response = await middleware(mock_request, mock_call_next)
+        send_calls = []
+        async def send(message):
+            send_calls.append(message)
         
-        assert response == mock_response
+        # Call middleware
+        await middleware(scope, receive, send)
+        
+        # Verify response was sent
+        assert len(send_calls) == 2
+        assert send_calls[0]["status"] == 200
         output = self.log_capture.getvalue()
         assert "request_started" in output
         assert "request_completed" in output
@@ -224,18 +245,29 @@ class TestLogging:
         """Test RequestLoggingMiddleware with exception."""
         configure_logging(development=True)
         
-        middleware = RequestLoggingMiddleware()
-        
-        # Mock request
-        mock_request = Mock()
-        mock_request.method = "POST"
-        mock_request.url.path = "/error"
-        
-        async def mock_call_next(request):
+        # Create mock app that raises exception
+        async def mock_app(scope, receive, send):
             raise RuntimeError("Request failed")
         
+        middleware = RequestLoggingMiddleware(mock_app)
+        
+        # Create mock ASGI scope
+        scope = {
+            "type": "http",
+            "method": "POST",
+            "path": "/error",
+        }
+        
+        # Mock receive and send callables
+        async def receive():
+            return {"type": "http.request"}
+        
+        async def send(message):
+            pass
+        
+        # Call middleware and expect exception
         with pytest.raises(RuntimeError, match="Request failed"):
-            await middleware(mock_request, mock_call_next)
+            await middleware(scope, receive, send)
         
         output = self.log_capture.getvalue()
         assert "request_started" in output

@@ -41,7 +41,7 @@ async def startup() -> None:
         
         # Configure logging
         configure_logging(
-            log_level=settings.log_level,
+            level=settings.log_level,
             service_name=settings.service_name,
         )
         

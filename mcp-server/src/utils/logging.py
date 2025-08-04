@@ -136,15 +136,17 @@ def with_request_id(request_id: str) -> Any:
 
 
 class RequestLoggingMiddleware:
-    """Middleware to add request ID correlation to logs."""
+    """ASGI middleware to add request ID correlation to logs."""
     
-    def __init__(self, generate_request_id=None):
+    def __init__(self, app, generate_request_id=None):
         """
         Initialize request logging middleware.
         
         Args:
+            app: The ASGI application to wrap
             generate_request_id: Function to generate request IDs (optional)
         """
+        self.app = app
         self.generate_request_id = generate_request_id or self._default_request_id
     
     def _default_request_id(self) -> str:
@@ -152,27 +154,42 @@ class RequestLoggingMiddleware:
         from .ids import generate_id
         return generate_id("req")
     
-    async def __call__(self, request, call_next):
+    async def __call__(self, scope, receive, send):
         """Process request with logging context."""
+        # Only process HTTP requests
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        
         request_id = self.generate_request_id()
+        path = scope.get("path", "/")
+        method = scope.get("method", "GET")
         
         with with_request_id(request_id):
             logger = get_logger("request")
             logger.info(
                 "request_started",
-                method=request.method,
-                path=request.url.path,
+                method=method,
+                path=path,
                 request_id=request_id,
             )
             
+            # Track response status
+            status_code = None
+            
+            async def send_wrapper(message):
+                nonlocal status_code
+                if message["type"] == "http.response.start":
+                    status_code = message.get("status", 200)
+                await send(message)
+            
             try:
-                response = await call_next(request)
+                await self.app(scope, receive, send_wrapper)
                 logger.info(
                     "request_completed",
-                    status_code=response.status_code,
+                    status_code=status_code,
                     request_id=request_id,
                 )
-                return response
             except Exception as e:
                 logger.error(
                     "request_failed",

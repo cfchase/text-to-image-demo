@@ -119,6 +119,10 @@ async def get_image(
                 "image_id": image_id,
             }
         )
+    
+    except HTTPException:
+        # Re-raise HTTPException without catching it
+        raise
         
     except Exception as e:
         logger.error(

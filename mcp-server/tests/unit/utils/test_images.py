@@ -38,21 +38,32 @@ INVALID_HEADER = b"\x00\x01\x02\x03" + b"\x00" * 20
 
 # Create more complete test images
 def create_png_data(width=100, height=100):
-    """Create minimal valid PNG data."""
-    header = b"\x89PNG\r\n\x1a\n"
-    # IHDR chunk
-    ihdr_data = b""
-    ihdr_data += width.to_bytes(4, "big")  # width
-    ihdr_data += height.to_bytes(4, "big")  # height
-    ihdr_data += b"\x08\x02\x00\x00\x00"  # bit_depth, color_type, compression, filter, interlace
-    
-    # IHDR chunk = length + type + data + crc
-    ihdr_chunk = b"\x00\x00\x00\x0d"  # length = 13
-    ihdr_chunk += b"IHDR"  # type
-    ihdr_chunk += ihdr_data  # data
-    ihdr_chunk += b"\x00\x00\x00\x00"  # simplified CRC
-    
-    return header + ihdr_chunk + b"\x00\x00\x00\x00IEND\xaeB`\x82"  # Minimal end chunk
+    """Create valid PNG data."""
+    try:
+        # Try to use PIL to create a real PNG
+        from PIL import Image
+        import io
+        
+        img = Image.new('RGB', (width, height), color='red')
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        return buffer.getvalue()
+    except ImportError:
+        # Fallback to minimal PNG structure
+        header = b"\x89PNG\r\n\x1a\n"
+        # IHDR chunk
+        ihdr_data = b""
+        ihdr_data += width.to_bytes(4, "big")  # width
+        ihdr_data += height.to_bytes(4, "big")  # height
+        ihdr_data += b"\x08\x02\x00\x00\x00"  # bit_depth, color_type, compression, filter, interlace
+        
+        # IHDR chunk = length + type + data + crc
+        ihdr_chunk = b"\x00\x00\x00\x0d"  # length = 13
+        ihdr_chunk += b"IHDR"  # type
+        ihdr_chunk += ihdr_data  # data
+        ihdr_chunk += b"\x00\x00\x00\x00"  # simplified CRC
+        
+        return header + ihdr_chunk + b"\x00\x00\x00\x00IEND\xaeB`\x82"  # Minimal end chunk
 
 def create_jpeg_data():
     """Create minimal valid JPEG data."""

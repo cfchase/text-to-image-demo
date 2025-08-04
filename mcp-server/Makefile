@@ -2,7 +2,7 @@
 
 # Variables
 PYTHON := python3
-VENV := ../.venv
+VENV := .venv
 PYTHON_VENV := $(VENV)/bin/python
 PIP_VENV := $(VENV)/bin/pip
 PYTEST := $(VENV)/bin/pytest
@@ -66,22 +66,22 @@ install-prod: ## Install production dependencies only
 .PHONY: test
 test: ## Run unit tests
 	@echo "$(BLUE)Running unit tests...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests/unit -v
+	PYTHONPATH=src $(PYTEST) tests/unit -v
 
 .PHONY: test-integration
 test-integration: ## Run integration tests
 	@echo "$(BLUE)Running integration tests...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests/integration -v
+	PYTHONPATH=src $(PYTEST) tests/integration -v
 
 .PHONY: test-all
 test-all: ## Run all tests with coverage
 	@echo "$(BLUE)Running all tests with coverage...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests -v --cov=mcp-server/src --cov-report=html --cov-report=term
+	PYTHONPATH=src $(PYTEST) tests -v --cov=src --cov-report=html --cov-report=term
 
 .PHONY: test-fast
 test-fast: ## Run tests without coverage (faster)
 	@echo "$(BLUE)Running tests without coverage...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests/unit -v --no-cov
+	PYTHONPATH=src $(PYTEST) tests/unit -v --no-cov
 
 .PHONY: lint
 lint: ## Run linting checks
@@ -129,7 +129,7 @@ run: ## Run the server locally (development mode)
 	@echo "$(YELLOW)Host: $(HOST):$(PORT)$(NC)"
 	@echo "$(YELLOW)Storage: $(STORAGE_BACKEND) ($(STORAGE_PATH))$(NC)"
 	@echo "$(YELLOW)KServe: $(KSERVE_ENDPOINT)$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src \
+	PYTHONPATH=src \
 		HOST=$(HOST) \
 		PORT=$(PORT) \
 		LOG_LEVEL=$(LOG_LEVEL) \
@@ -142,7 +142,7 @@ run: ## Run the server locally (development mode)
 .PHONY: run-prod
 run-prod: ## Run the server in production mode
 	@echo "$(BLUE)Starting MCP server in production mode...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src \
+	PYTHONPATH=src \
 		HOST=$(HOST) \
 		PORT=$(PORT) \
 		WORKERS=$(WORKERS) \
@@ -156,12 +156,12 @@ run-prod: ## Run the server in production mode
 .PHONY: health
 health: ## Check server health
 	@echo "$(BLUE)Checking server health...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTHON_VENV) -m main health
+	PYTHONPATH=src $(PYTHON_VENV) -m main health
 
 .PHONY: cleanup-images
 cleanup-images: ## Manually trigger image cleanup
 	@echo "$(BLUE)Triggering image cleanup...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTHON_VENV) -m main cleanup
+	PYTHONPATH=src $(PYTHON_VENV) -m main cleanup
 
 # Docker targets
 .PHONY: docker-build
@@ -269,12 +269,12 @@ dev-test: format lint type-check test ## Run all development checks
 .PHONY: watch-tests
 watch-tests: ## Watch for changes and run tests
 	@echo "$(BLUE)Watching for changes...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests/unit -v --no-cov --tb=short -f
+	PYTHONPATH=src $(PYTEST) tests/unit -v --no-cov --tb=short -f
 
 .PHONY: coverage-report
 coverage-report: ## Generate and open coverage report
 	@echo "$(BLUE)Generating coverage report...$(NC)"
-	cd .. && PYTHONPATH=mcp-server/src $(PYTEST) mcp-server/tests --cov=mcp-server/src --cov-report=html --quiet
+	PYTHONPATH=src $(PYTEST) tests --cov=src --cov-report=html --quiet
 	@echo "$(GREEN)Opening coverage report...$(NC)"
 	open htmlcov/index.html || xdg-open htmlcov/index.html 2>/dev/null || echo "Please open htmlcov/index.html manually"
 

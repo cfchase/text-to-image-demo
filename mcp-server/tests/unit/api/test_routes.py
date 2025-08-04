@@ -32,8 +32,8 @@ class TestGetImage:
         """Test successful image retrieval."""
         mock_storage.get_image.return_value = sample_image_data
         
-        with patch("mcp_server.api.routes.detect_image_format") as mock_detect, \
-             patch("mcp_server.api.routes.get_mime_type") as mock_mime:
+        with patch("api.routes.detect_image_format") as mock_detect, \
+             patch("api.routes.get_mime_type") as mock_mime:
             
             mock_detect.return_value = "png"
             mock_mime.return_value = "image/png"
@@ -87,7 +87,7 @@ class TestGetImage:
         """Test image retrieval with format detection error."""
         mock_storage.get_image.return_value = sample_image_data
         
-        with patch("mcp_server.api.routes.detect_image_format") as mock_detect:
+        with patch("api.routes.detect_image_format") as mock_detect:
             mock_detect.side_effect = ImageFormatError("Unknown format")
             
             response = await get_image("test-id", mock_storage)
@@ -100,8 +100,8 @@ class TestGetImage:
         """Test that image is returned as streaming response."""
         mock_storage.get_image.return_value = sample_image_data
         
-        with patch("mcp_server.api.routes.detect_image_format") as mock_detect, \
-             patch("mcp_server.api.routes.get_mime_type") as mock_mime:
+        with patch("api.routes.detect_image_format") as mock_detect, \
+             patch("api.routes.get_mime_type") as mock_mime:
             
             mock_detect.return_value = "jpeg"
             mock_mime.return_value = "image/jpeg"
@@ -140,7 +140,7 @@ class TestListImages:
         """Test successful image listing."""
         mock_storage.list_images.return_value = sample_metadata_list
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -165,7 +165,7 @@ class TestListImages:
         """Test image listing with prefix filter."""
         mock_storage.list_images.return_value = sample_metadata_list
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -185,7 +185,7 @@ class TestListImages:
         ]
         mock_storage.list_images.return_value = large_metadata_list
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -202,7 +202,7 @@ class TestListImages:
         """Test image listing with no images."""
         mock_storage.list_images.return_value = []
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -222,7 +222,7 @@ class TestListImages:
         ]
         mock_storage.list_images.return_value = metadata_without_id
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -304,7 +304,7 @@ class TestGetImageMetadata:
         """Test successful metadata retrieval."""
         mock_storage.list_images.return_value = sample_metadata_list
         
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings
@@ -427,8 +427,8 @@ class TestRouteIntegration:
         mock_storage.delete_image.return_value = True
         
         # Test image retrieval
-        with patch("mcp_server.api.routes.detect_image_format") as mock_detect, \
-             patch("mcp_server.api.routes.get_mime_type") as mock_mime:
+        with patch("api.routes.detect_image_format") as mock_detect, \
+             patch("api.routes.get_mime_type") as mock_mime:
             
             mock_detect.return_value = "png"
             mock_mime.return_value = "image/png"
@@ -437,7 +437,7 @@ class TestRouteIntegration:
             assert isinstance(response, StreamingResponse)
         
         # Test metadata retrieval
-        with patch("mcp_server.api.routes.get_settings") as mock_get_settings:
+        with patch("api.routes.get_settings") as mock_get_settings:
             mock_settings = MagicMock()
             mock_settings.get_storage_url.return_value = "http://localhost:8000/images"
             mock_get_settings.return_value = mock_settings

@@ -42,7 +42,10 @@ class KServeInferenceRequest(BaseModel):
 class KServePrediction(BaseModel):
     """Single prediction in a KServe inference response."""
 
-    image_data: str = Field(..., description="Base64 encoded image data")
+    image: Optional[Dict[str, str]] = Field(None, description="Image data with b64 field")
+    image_data: Optional[str] = Field(None, description="Base64 encoded image data")
+    model_name: Optional[str] = Field(None, description="Model name")
+    prompt: Optional[str] = Field(None, description="Generation prompt")
     metadata: Dict[str, Any] = Field(
         default_factory=dict, description="Generation metadata"
     )
