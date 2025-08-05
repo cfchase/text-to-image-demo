@@ -49,7 +49,7 @@ test-diffusers: ## Test connection to diffusers-runtime service
 		| jq -r '.predictions[0].model_name' || echo "Error: Is diffusers-runtime running? (make dev in diffusers-runtime/)"
 
 run: ## Run unified server with MCP on /mcp and images on /images
-	.venv/bin/python main.py --port 8080
+	.venv/bin/python main.py --port 8000
 
 clean: ## Clean generated images
 	rm -rf images/
