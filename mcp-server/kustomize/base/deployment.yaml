@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-server
+  labels:
+    component: server
+    version: v1.0
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels:
+        component: server
+        version: v1.0
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        fsGroupChangePolicy: "OnRootMismatch"
+      serviceAccountName: default
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-diffusers-runtime
+        image: curlimages/curl:8.1.2
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for diffusers-runtime service to be available..."
+          DIFFUSERS_URL="${DIFFUSERS_RUNTIME_URL:-http://tiny-sd.default.svc.cluster.local:8080}"
+          echo "Checking connectivity to: $DIFFUSERS_URL"
+          
+          # Wait up to 5 minutes for the service to become available
+          for i in $(seq 1 30); do
+            echo "Attempt $i/30: Testing connectivity to diffusers-runtime..."
+            if curl -f --connect-timeout 10 --max-time 30 -s "$DIFFUSERS_URL/v1/models" > /dev/null; then
+              echo "✓ Diffusers-runtime service is available at $DIFFUSERS_URL"
+              exit 0
+            else
+              echo "✗ Diffusers-runtime service not ready yet. Waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          echo "❌ Timeout: Diffusers-runtime service not available after 5 minutes"
+          echo "Please ensure a diffusers-runtime InferenceService is deployed and healthy"
+          echo "Expected URL: $DIFFUSERS_URL"
+          exit 1
+        envFrom:
+        - configMapRef:
+            name: mcp-server-config
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+      containers:
+      - name: mcp-server
+        image: mcp-server
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: mcp-server-config
+        volumeMounts:
+        - name: image-storage
+          mountPath: /opt/app-root/src/images
+        - name: tmp-volume
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+      volumes:
+      - name: image-storage
+        emptyDir:
+          sizeLimit: "5Gi"
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: "1Gi"

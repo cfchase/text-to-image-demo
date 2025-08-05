@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mcp-server-netpol-dev
+  labels:
+    component: security
+    environment: development
+spec:
+  podSelector:
+    matchLabels:
+      component: server
+  policyTypes:
+  - Egress
+  egress:
+  # Allow all outbound for development (less restrictive)
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53  # DNS
+    - protocol: TCP
+      port: 53  # DNS over TCP
+    - protocol: TCP
+      port: 8080  # Diffusers-runtime
+    - protocol: TCP
+      port: 443   # HTTPS
+    - protocol: TCP
+      port: 80    # HTTP

@@ -1,4 +1,19 @@
+# Include environment files if they exist
+-include .env
+-include .env.local
+
+# Container configuration
 CONTAINER_RUNTIME ?= podman
+IMAGE_REGISTRY ?= quay.io/cfchase
+IMAGE_NAME ?= diffusers-runtime
+IMAGE_TAG ?= latest
+
+# Model configuration
+MODEL_ID ?= segmind/tiny-sd
+PORT ?= 8080
+
+# Computed image name
+IMAGE_FULL = $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 .PHONY: help build push run dev test-v1 deploy undeploy
 
@@ -12,6 +27,10 @@ help: ## Show this help message
 	@echo ""
 	@echo "Environment variables:"
 	@echo "  CONTAINER_RUNTIME  Container runtime to use (default: podman)"
+	@echo "  IMAGE_REGISTRY     Container registry (default: quay.io/cfchase)"
+	@echo "  IMAGE_TAG          Image tag (default: latest)"
+	@echo "  MODEL_ID           Model to use (default: segmind/tiny-sd)"
+	@echo "  PORT               Port to expose (default: 8080)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make build && make run      # Build and run container with tiny-sd model"
@@ -20,15 +39,15 @@ help: ## Show this help message
 	@echo "  make build CONTAINER_RUNTIME=docker  # Use docker instead of podman"
 
 build: ## Build the container image
-	$(CONTAINER_RUNTIME) build --platform linux/amd64 -t quay.io/cfchase/diffusers-runtime:latest -f docker/Dockerfile .
+	$(CONTAINER_RUNTIME) build --platform linux/amd64 -t $(IMAGE_FULL) -f docker/Dockerfile .
 
 push: ## Push container image to registry
-	$(CONTAINER_RUNTIME) tag quay.io/cfchase/diffusers-runtime:latest quay.io/cfchase/diffusers-runtime:v0.2
-	$(CONTAINER_RUNTIME) push quay.io/cfchase/diffusers-runtime:latest
-	$(CONTAINER_RUNTIME) push quay.io/cfchase/diffusers-runtime:v0.2
+	$(CONTAINER_RUNTIME) tag $(IMAGE_FULL) $(IMAGE_REGISTRY)/$(IMAGE_NAME):v0.2
+	$(CONTAINER_RUNTIME) push $(IMAGE_FULL)
+	$(CONTAINER_RUNTIME) push $(IMAGE_REGISTRY)/$(IMAGE_NAME):v0.2
 
-run: ## Run container with segmind/tiny-sd model
-	$(CONTAINER_RUNTIME) run --rm -ePORT=8080 -eMODEL_ID=segmind/tiny-sd -p8080:8080 quay.io/cfchase/diffusers-runtime:latest
+run: ## Run container with configured model
+	$(CONTAINER_RUNTIME) run --rm -ePORT=$(PORT) -eMODEL_ID=$(MODEL_ID) -p$(PORT):$(PORT) $(IMAGE_FULL)
 
 deploy: ## Deploy tiny-sd InferenceService to OpenShift
 	oc apply -f templates/tiny-sd.yaml
@@ -36,8 +55,8 @@ deploy: ## Deploy tiny-sd InferenceService to OpenShift
 undeploy: ## Remove tiny-sd InferenceService from OpenShift
 	oc delete -f templates/tiny-sd.yaml
 
-dev: ## Run locally with Python for development (segmind/tiny-sd)
-	MODEL_ID=segmind/tiny-sd python model.py --model_name model
+dev: ## Run locally with Python for development
+	MODEL_ID=$(MODEL_ID) PORT=$(PORT) python model.py --model_name model
 
 test-v1: ## Test the running service with a sample request
-	curl -H "Content-Type: application/json" localhost:8080/v1/models/model:predict -d @./scripts/v1_input.json | jq -r '.predictions[0].image.b64' | base64 -d > "example_output.png"
+	curl -H "Content-Type: application/json" localhost:$(PORT)/v1/models/model:predict -d @./scripts/v1_input.json | jq -r '.predictions[0].image.b64' | base64 -d > "example_output.png"

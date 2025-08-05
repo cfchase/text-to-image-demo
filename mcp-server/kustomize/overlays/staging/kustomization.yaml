@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: mcp-server-staging
+
+# Reference to base
+resources:
+  - ../../base
+  - images-route.yaml
+
+# Namespace for staging
+namespace: mcp-server-staging
+
+# Environment-specific labels
+labels:
+  - pairs:
+      environment: staging
+
+# Environment-specific annotations
+commonAnnotations:
+  app.kubernetes.io/instance: staging
+
+# ConfigMap generation for staging-specific environment variables
+configMapGenerator:
+  - name: mcp-server-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=INFO
+      - IMAGE_SERVER_URL=http://mcp-server:8000
+      - DIFFUSERS_RUNTIME_URL=http://tiny-sd.default.svc.cluster.local:8080
+      - DIFFUSERS_RUNTIME_SERVICE=tiny-sd
+      - DIFFUSERS_RUNTIME_NAMESPACE=default
+
+# JSON patches for staging-specific changes
+patches:
+  # Standard resources for staging (similar to base)
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /spec/template/metadata/annotations/deployment.kubernetes.io~1revision
+        value: "staging"
+
+  # Add staging-specific annotations to route
+  - target:
+      kind: Route
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections
+        value: "true"
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections.concurrent-tcp
+        value: "50"

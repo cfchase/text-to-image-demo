@@ -1,0 +1,199 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: mcp-server-production
+
+# Reference to base
+resources:
+  - ../../base
+  - pvc.yaml
+  - secret.yaml
+  - networkpolicy.yaml
+  - poddisruptionbudget.yaml
+  - hpa.yaml
+  - headless-service.yaml
+
+# Namespace for production
+namespace: mcp-server-production
+
+# Environment-specific labels
+labels:
+  - pairs:
+      environment: production
+
+# Environment-specific annotations
+commonAnnotations:
+  app.kubernetes.io/instance: production
+
+# ConfigMap generation for production-specific environment variables
+configMapGenerator:
+  - name: mcp-server-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=INFO
+      - IMAGE_SERVER_URL=http://mcp-server:8080
+      - WORKERS=1
+      - MAX_REQUESTS=1000
+      - MAX_REQUESTS_JITTER=100
+      - DIFFUSERS_RUNTIME_URL=http://redhat-dog.default.svc.cluster.local:8080
+      - DIFFUSERS_RUNTIME_SERVICE=redhat-dog
+      - DIFFUSERS_RUNTIME_NAMESPACE=default
+
+# Secret generation for production (remove this since we have secret.yaml as a resource)
+# secretGenerator:
+#   - name: mcp-server-secrets
+#     literals:
+#       - PLACEHOLDER=placeholder-value
+
+# JSON patches for production-specific changes
+patches:
+  # Production scaling and resource allocation
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+      - op: add
+        path: /spec/strategy
+        value:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 1
+
+  # Enhanced resources for production
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "200m"
+      - op: add
+        path: /spec/template/spec/containers/0/resources/requests/ephemeral-storage
+        value: "1Gi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "2Gi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "1000m"
+      - op: add
+        path: /spec/template/spec/containers/0/resources/limits/ephemeral-storage
+        value: "5Gi"
+
+  # Production health checks with startup probe
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/livenessProbe/initialDelaySeconds
+        value: 60
+      - op: replace
+        path: /spec/template/spec/containers/0/readinessProbe/initialDelaySeconds
+        value: 30
+      - op: add
+        path: /spec/template/spec/containers/0/startupProbe
+        value:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 12
+          successThreshold: 1
+
+  # Production security context
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /spec/template/spec/securityContext/seccompProfile
+        value:
+          type: RuntimeDefault
+      - op: replace
+        path: /spec/template/spec/containers/0/securityContext/readOnlyRootFilesystem
+        value: true
+
+  # Pod anti-affinity for high availability
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - mcp-server
+                topologyKey: kubernetes.io/hostname
+
+  # Use PVC instead of emptyDir for production
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/volumes/0
+        value:
+          name: image-storage
+          persistentVolumeClaim:
+            claimName: mcp-server-images
+
+  # Add secret environment variables
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom/-
+        value:
+          secretRef:
+            name: mcp-server-secrets
+
+  # Production route annotations with rate limiting
+  - target:
+      kind: Route
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections
+        value: "true"
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections.concurrent-tcp
+        value: "100"
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections.rate-http
+        value: "1000"
+      - op: add
+        path: /metadata/annotations/haproxy.router.openshift.io~1rate-limit-connections.rate-tcp
+        value: "1000"
+
+  # Add config/secret reload annotations
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: add
+        path: /spec/template/metadata/annotations/configmap.reloader.stakater.com~1reload
+        value: mcp-server-config
+      - op: add
+        path: /spec/template/metadata/annotations/secret.reloader.stakater.com~1reload
+        value: mcp-server-secrets

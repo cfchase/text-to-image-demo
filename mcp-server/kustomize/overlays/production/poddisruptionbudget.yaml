@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mcp-server-pdb
+  labels:
+    component: availability
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      component: server

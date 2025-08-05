@@ -1,0 +1,91 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: mcp-server-dev
+
+# Reference to base
+resources:
+  - ../../base
+  - pvc.yaml
+  - networkpolicy.yaml
+
+# Namespace for development
+namespace: mcp-server-dev
+
+# Environment-specific labels
+labels:
+  - pairs:
+      environment: development
+
+# Environment-specific annotations
+commonAnnotations:
+  app.kubernetes.io/instance: dev
+
+# ConfigMap generation for dev-specific environment variables
+configMapGenerator:
+  - name: mcp-server-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=DEBUG
+      - IMAGE_SERVER_URL=http://mcp-server:8000
+      - DIFFUSERS_RUNTIME_URL=http://tiny-sd.default.svc.cluster.local:8080
+      - DIFFUSERS_RUNTIME_NAMESPACE=default
+
+# JSON patches for development-specific changes
+patches:
+  # Reduce resources for development
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "128Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "50m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "250m"
+  
+  # Faster health checks for development
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/livenessProbe/initialDelaySeconds
+        value: 15
+      - op: replace
+        path: /spec/template/spec/containers/0/livenessProbe/periodSeconds
+        value: 15
+      - op: replace
+        path: /spec/template/spec/containers/0/readinessProbe/initialDelaySeconds
+        value: 5
+      - op: replace
+        path: /spec/template/spec/containers/0/readinessProbe/periodSeconds
+        value: 5
+
+  # Use PVC instead of emptyDir for persistent development data
+  - target:
+      kind: Deployment
+      name: mcp-server
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/volumes/0
+        value:
+          name: image-storage
+          persistentVolumeClaim:
+            claimName: mcp-server-images
+
+  # Disable TLS for easier development debugging
+  - target:
+      kind: Route
+      name: mcp-server
+    patch: |-
+      - op: remove
+        path: /spec/tls

@@ -1,3 +1,7 @@
+# Include environment files if they exist
+-include .env
+-include .env.local
+
 .PHONY: help install run server-status clean
 
 help: ## Show this help message
