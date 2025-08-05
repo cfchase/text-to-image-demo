@@ -11,6 +11,7 @@ from typing import Optional
 DIFFUSERS_RUNTIME_URL = os.environ.get("DIFFUSERS_RUNTIME_URL", "http://0.0.0.0:8080")
 DIFFUSERS_MODEL_ID = os.environ.get("DIFFUSERS_MODEL_ID", "model")
 IMAGE_OUTPUT_PATH = os.environ.get("IMAGE_OUTPUT_PATH", "/tmp/image-generator")
+IMAGE_SERVER_URL = os.environ.get("IMAGE_SERVER_URL", "")  # e.g., "http://localhost:8001"
 
 # Ensure output directory exists
 os.makedirs(IMAGE_OUTPUT_PATH, exist_ok=True)
@@ -105,7 +106,12 @@ def generate_image(prompt: str,
         with open(image_path, "wb") as f:
             f.write(image_data)
         
-        return f"Image saved to: {image_path}"
+        # Return URL if image server is configured, otherwise return file path
+        if IMAGE_SERVER_URL:
+            image_url = f"{IMAGE_SERVER_URL}/{image_id}.png"
+            return f"Image generated: {image_url}"
+        else:
+            return f"Image saved to: {image_path}"
         
     except httpx.HTTPError as e:
         return f"Error generating image: {str(e)}"
@@ -114,17 +120,12 @@ def generate_image(prompt: str,
     
 
 @click.command()
-@click.option("--transport", type=click.Choice(["stdio", "http"]), default="stdio",
-              help="Transport type (default: stdio)")
 @click.option("--port", type=int, default=8000,
-              help="Port for HTTP transport (default: 8000)")
-def main(transport: str, port: int):
+              help="Port for HTTP server (default: 8000)")
+def main(port: int):
     """Image Generation MCP Server"""
-    # Initialize and run the server with appropriate transport
-    if transport == "http":
-        mcp.run(transport="http", port=port)
-    else:
-        mcp.run(transport="stdio")
+    # Run the server with HTTP transport
+    mcp.run(transport="http", port=port)
 
 if __name__ == "__main__":
     main()

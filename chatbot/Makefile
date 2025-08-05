@@ -9,7 +9,7 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "Prerequisites:"
-	@echo "  - MCP server running on http://127.0.0.1:8000 (cd ../mcp-server && make run-http)"
+	@echo "  - MCP server running on http://127.0.0.1:8000 (cd ../mcp-server && make run)"
 	@echo "  - Diffusers runtime running on http://0.0.0.0:8080 (cd ../diffusers-runtime && make dev)"
 	@echo "  - ANTHROPIC_API_KEY in .env file"
 
@@ -25,7 +25,7 @@ run: ## Run chatbot with config.json
 
 server-status: ## Check if required servers are running
 	@echo "Checking MCP server at http://127.0.0.1:8000..."
-	@curl -s http://127.0.0.1:8000/health >/dev/null 2>&1 && echo "✅ MCP server is running" || echo "❌ MCP server is not running (run: cd ../mcp-server && make run-http)"
+	@curl -s http://127.0.0.1:8000/health >/dev/null 2>&1 && echo "✅ MCP server is running" || echo "❌ MCP server is not running (run: cd ../mcp-server && make run)"
 	@echo ""
 	@echo "Checking diffusers-runtime at http://0.0.0.0:8080..."
 	@curl -s http://0.0.0.0:8080/v2/health/ready >/dev/null 2>&1 && echo "✅ Diffusers runtime is running" || echo "❌ Diffusers runtime is not running (run: cd ../diffusers-runtime && make dev)"
