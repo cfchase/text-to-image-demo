@@ -123,5 +123,5 @@ When creating commits in this repository:
 - **DO NOT** include Claude-specific references in commit messages
 - **DO NOT** mention "Generated with Claude Code" or similar attributions
 - **DO NOT** add Co-Authored-By references to Claude
-- Focus commit messages on the technical changes made
+- Commit messages should be concise and cover what changes were made and why
 - Use conventional commit format when appropriate (feat:, fix:, docs:, etc.)
