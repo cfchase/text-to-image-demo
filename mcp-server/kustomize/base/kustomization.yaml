@@ -45,3 +45,4 @@ images:
 
 # Namespace (can be overridden in overlays)
 namespace: mcp-server
+

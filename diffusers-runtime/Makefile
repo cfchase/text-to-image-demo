@@ -12,6 +12,9 @@ IMAGE_TAG ?= latest
 MODEL_ID ?= segmind/tiny-sd
 PORT ?= 8080
 
+# Deployment configuration
+DEPLOY_TEMPLATE ?= redhat-dog-hf
+
 # Computed image name
 IMAGE_FULL = $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
 
@@ -31,11 +34,21 @@ help: ## Show this help message
 	@echo "  IMAGE_TAG          Image tag (default: latest)"
 	@echo "  MODEL_ID           Model to use (default: segmind/tiny-sd)"
 	@echo "  PORT               Port to expose (default: 8080)"
+	@echo "  DEPLOY_TEMPLATE    Template to deploy (default: redhat-dog-hf)"
+	@echo ""
+	@echo "Available templates:"
+	@echo "  tiny-sd            Basic tiny-sd deployment"
+	@echo "  tiny-sd-gpu        Tiny-sd with GPU support"
+	@echo "  redhat-dog         Redhat dog model deployment"
+	@echo "  redhat-dog-pvc     Redhat dog with PVC storage"
+	@echo "  redhat-dog-hf      Redhat dog from HuggingFace"
+	@echo "  diffusers-serving-runtime  Generic serving runtime"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make build && make run      # Build and run container with tiny-sd model"
-	@echo "  make run                    # Run existing container with tiny-sd model" 
-	@echo "  make dev                    # Run locally with Python for development"
+	@echo "  make build && make run      # Build and run container"
+	@echo "  make deploy                 # Deploy redhat-dog-hf (default)"
+	@echo "  make deploy DEPLOY_TEMPLATE=redhat-dog  # Deploy redhat-dog"
+	@echo "  make undeploy DEPLOY_TEMPLATE=redhat-dog  # Remove redhat-dog"
 	@echo "  make build CONTAINER_RUNTIME=docker  # Use docker instead of podman"
 
 build: ## Build the container image
@@ -49,11 +62,23 @@ push: ## Push container image to registry
 run: ## Run container with configured model
 	$(CONTAINER_RUNTIME) run --rm -ePORT=$(PORT) -eMODEL_ID=$(MODEL_ID) -p$(PORT):$(PORT) $(IMAGE_FULL)
 
-deploy: ## Deploy tiny-sd InferenceService to OpenShift
-	oc apply -f templates/tiny-sd.yaml
+deploy: ## Deploy InferenceService to OpenShift (use DEPLOY_TEMPLATE to specify)
+	@if [ ! -f templates/$(DEPLOY_TEMPLATE).yaml ]; then \
+		echo "Error: Template 'templates/$(DEPLOY_TEMPLATE).yaml' not found"; \
+		echo "Available templates:"; \
+		ls -1 templates/*.yaml | sed 's|templates/||' | sed 's|\.yaml||'; \
+		exit 1; \
+	fi
+	@echo "Deploying $(DEPLOY_TEMPLATE) InferenceService..."
+	oc apply -f templates/$(DEPLOY_TEMPLATE).yaml
 
-undeploy: ## Remove tiny-sd InferenceService from OpenShift
-	oc delete -f templates/tiny-sd.yaml
+undeploy: ## Remove InferenceService from OpenShift (use DEPLOY_TEMPLATE to specify)
+	@if [ ! -f templates/$(DEPLOY_TEMPLATE).yaml ]; then \
+		echo "Error: Template 'templates/$(DEPLOY_TEMPLATE).yaml' not found"; \
+		exit 1; \
+	fi
+	@echo "Removing $(DEPLOY_TEMPLATE) InferenceService..."
+	oc delete -f templates/$(DEPLOY_TEMPLATE).yaml
 
 dev: ## Run locally with Python for development
 	MODEL_ID=$(MODEL_ID) PORT=$(PORT) python model.py --model_name model
