@@ -201,8 +201,8 @@ def main(port: int):
     print(f"📊 Health check: http://localhost:{port}/health")
     print(f"📚 API docs: http://localhost:{port}/docs\n")
     
-    # Run the unified server
-    mcp.run(transport="http", port=port)
+    # Run the unified server (bind to 0.0.0.0 for container access)
+    mcp.run(transport="http", port=port, host="0.0.0.0")
 
 
 if __name__ == "__main__":
