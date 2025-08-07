@@ -114,8 +114,11 @@ def generate_image(prompt: str,
             f.write(image_data)
         
         # Return URL for the unified server
-        port = os.environ.get("PORT", "8000")
-        image_url = f"http://localhost:{port}/images/{image_id}.png"
+        if os.environ.get("PUBLIC_URL"):
+            image_url = f"{os.environ.get('PUBLIC_URL')}/images/{image_id}.png"
+        else:
+            port = os.environ.get("PORT", "8000")
+            image_url = f"http://localhost:{port}/images/{image_id}.png"
         return f"Image generated: {image_url}"
         
     except httpx.HTTPError as e:
@@ -162,12 +165,18 @@ async def list_images(request: Request) -> Response:
     """List available generated images."""
     image_dir = Path(IMAGE_OUTPUT_PATH)
     images = []
-    port = os.environ.get("PORT", "8000")
+    
+    # Get base URL from environment or default to localhost
+    if os.environ.get("PUBLIC_URL"):
+        base_url = os.environ.get("PUBLIC_URL")
+    else:
+        port = os.environ.get("PORT", "8000")
+        base_url = f"http://localhost:{port}"
     
     for image_path in image_dir.glob("*.png"):
         images.append({
             "name": image_path.name,
-            "url": f"http://localhost:{port}/images/{image_path.name}",
+            "url": f"{base_url}/images/{image_path.name}",
             "size": image_path.stat().st_size,
             "created": image_path.stat().st_mtime
         })

@@ -39,9 +39,23 @@ deploy: ## Deploy to OpenShift
 	@echo "Deploying MCP Server to OpenShift..."
 	@export MCP_SERVER_NAME=$(MCP_SERVER_NAME) \
 		MCP_IMAGE=$(IMAGE) \
+		PUBLIC_URL="" \
 		DIFFUSERS_RUNTIME_URL=$(DIFFUSERS_RUNTIME_URL) \
 		DIFFUSERS_MODEL_ID=$(DIFFUSERS_MODEL_ID) && \
 	envsubst < templates/mcp-server.yaml | oc apply -f -
+	@echo ""
+	@echo "Waiting for route to be ready..."
+	@sleep 3
+	@echo "Setting PUBLIC_URL from route..."
+	@ROUTE_HOST=$$(oc get route $(MCP_SERVER_NAME) -o jsonpath='{.spec.host}' 2>/dev/null || echo "") && \
+	if [ -n "$$ROUTE_HOST" ]; then \
+		echo "Setting PUBLIC_URL to https://$$ROUTE_HOST" && \
+		oc set env deployment/$(MCP_SERVER_NAME) PUBLIC_URL="https://$$ROUTE_HOST" && \
+		echo "Waiting for deployment to rollout..." && \
+		oc rollout status deployment/$(MCP_SERVER_NAME) --timeout=120s; \
+	else \
+		echo "Warning: Could not determine route URL. You may need to set PUBLIC_URL manually."; \
+	fi
 	@echo ""
 	@echo "Deployment complete. To access the MCP server:"
 	@echo "  oc get route $(MCP_SERVER_NAME)"
