@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${MCP_SERVER_NAME}
+  labels:
+    app: ${MCP_SERVER_NAME}
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: ${MCP_SERVER_NAME}
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${MCP_SERVER_NAME}
+  labels:
+    app: ${MCP_SERVER_NAME}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${MCP_SERVER_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${MCP_SERVER_NAME}
+    spec:
+      containers:
+      - name: mcp-server
+        image: ${MCP_IMAGE}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DIFFUSERS_RUNTIME_URL
+          value: "${DIFFUSERS_RUNTIME_URL}"
+        - name: DIFFUSERS_MODEL_ID
+          value: "${DIFFUSERS_MODEL_ID}"
+        - name: IMAGE_OUTPUT_PATH
+          value: "/opt/app-root/src/images"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ${MCP_SERVER_NAME}
+  labels:
+    app: ${MCP_SERVER_NAME}
+spec:
+  to:
+    kind: Service
+    name: ${MCP_SERVER_NAME}
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
