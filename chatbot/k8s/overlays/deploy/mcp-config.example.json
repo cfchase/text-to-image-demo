@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem@latest", "/tmp"]
+    },
+    "remote_server": {
+      "transport": "http",
+      "url": "https://api.example.com:8123/mcp",
+      "headers": { "Authorization": "Bearer token" },
+      "auth": "oauth"
+    },
+    "local_server": {
+      "transport": "stdio",
+      "command": "python",
+      "args": ["./server.py", "--verbose"],
+      "env": { "DEBUG": "true" },
+      "cwd": "/path/to/server"
+    }
+  }
+}

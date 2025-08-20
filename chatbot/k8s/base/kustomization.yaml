@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Default namespace (can be overridden via CLI: kustomize build --namespace=<name>)
+namespace: chatbot
+
+resources:
+- backend-deployment.yaml
+- frontend-deployment.yaml
+- backend-service.yaml
+- frontend-service.yaml
+- route.yaml
+
+# Default images (can be overridden via CLI: kustomize edit set image)
+images:
+- name: quay.io/cfchase/chatbot-backend
+  newTag: latest
+- name: quay.io/cfchase/chatbot-frontend
+  newTag: latest
+
+# Labels applied to all resources
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/name: chatbot
+    app.kubernetes.io/part-of: chatbot
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/version: 1.0.0

@@ -1,0 +1,40 @@
+{
+  "name": "chatbot",
+  "version": "1.0.0",
+  "description": "A full-stack template with React frontend and FastAPI backend",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && pip install -r requirements.txt",
+    "test": "npm run test:frontend",
+    "test:frontend": "cd frontend && npm run test",
+    "setup": "npm run setup:frontend && npm run setup:backend",
+    "setup:frontend": "cd frontend && npm install",
+    "setup:backend": "cd backend && pip install -r requirements.txt",
+    "kustomize:dev": "kustomize build k8s/overlays/dev",
+    "kustomize:prod": "kustomize build k8s/overlays/prod",
+    "deploy:dev": "kustomize build k8s/overlays/dev | oc apply -f -",
+    "deploy:prod": "kustomize build k8s/overlays/prod | oc apply -f -"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cfchase/chatbot"
+  },
+  "keywords": [
+    "react",
+    "fastapi",
+    "template",
+    "full-stack",
+    "docker",
+    "openshift",
+    "kustomize"
+  ],
+  "author": "cfchase",
+  "license": "Apache-2.0"
+}

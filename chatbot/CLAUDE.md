@@ -2,111 +2,138 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## Claude Code Settings
 
-This is a Python FastMCP client project that enables interaction with MCP servers through Claude AI. The codebase provides a multi-server client implementation:
-- **multi_client.py**: Multi-server FastMCP client supporting both stdio and HTTP connections
+## Repository Overview
 
-## Architecture
-
-### Core Components
-
-1. **Client Class Structure**:
-   - Uses FastMCP's Client class for simplified connection management
-   - Anthropic integration for Claude AI interactions
-   - Tool execution pipeline between Claude and MCP servers
-   - Interactive REPL-like chat interface
-
-2. **Connection Flow**:
-   - Load environment variables (ANTHROPIC_API_KEY from .env)
-   - Initialize Anthropic client
-   - Connect to MCP server(s) using FastMCP Client
-   - List available tools from server(s)
-   - Process queries through Claude with tool access
-   - Execute tool calls and return results
-
-3. **Key Dependencies**:
-   - `fastmcp>=2.9.2`: FastMCP library for MCP client/server interactions
-   - `anthropic>=0.55.0`: Claude AI Python SDK
-   - `python-dotenv>=1.1.1`: Environment variable management
-
-## Common Development Commands
-
-### Running the Client
-
-```bash
-# Run multi-server client
-python multi_client.py --config config.json
-```
-
-### Package Management
-
-This project uses `uv` as the package manager:
-
-```bash
-# Install dependencies
-uv pip install -e .
-
-# Update dependencies
-uv pip compile pyproject.toml -o requirements.txt
-uv pip sync requirements.txt
-```
+This is a React FastAPI template for building full-stack applications with React frontend (Vite) and FastAPI backend, designed for deployment to OpenShift using Docker containers and Kustomize.
 
 ## Project Structure
 
-- **Python 3.13** required (specified in .python-version)
-- **Environment variables**: Store ANTHROPIC_API_KEY in .env file
-- **Simplified architecture**: FastMCP handles connection management, session handling, and protocol details
-- **No test infrastructure**: Tests need to be implemented
-- **Minimal error handling**: Basic try-catch in chat loops only
-
-## Key FastMCP Features Used
-
-- **Single Server**: `Client(command_string)` for stdio connections
-- **Multi-Server**: `Client(config_dict)` with `{"mcpServers": {...}}` format
-- **Native Multi-Server Support**: FastMCP automatically handles tool prefixing and routing
-- **Async Context Manager**: Uses `async with Client(...)` pattern for automatic cleanup
-- **Direct Tool Access**: `client.list_tools()` and `client.call_tool()` methods
-- **Tool Types**: Tools are returned as `mcp.types.Tool` objects with attributes (not dictionaries)
-
-## Client Features
-
-### multi_client.py
-- Loads configuration from JSON file
-- Supports multiple servers in one session
-- Both stdio and HTTP server types
-- FastMCP handles tool name prefixing with server names
-- Tool calls automatically routed to correct server
-
-## Configuration Format
-
-The multi-server client uses FastMCP's native config format:
-
-```json
-{
-  "mcpServers": {
-    "server_name": {
-      "command": "command",
-      "args": ["arg1", "arg2"]
-    },
-    "http_server": {
-      "url": "http://example.com/mcp"
-    }
-  }
-}
+```
+├── backend/              # FastAPI backend
+│   ├── main.py          # Main FastAPI application
+│   ├── pyproject.toml   # Python dependencies and project config
+│   ├── uv.lock          # Locked dependency versions
+│   ├── Dockerfile       # Backend container
+│   └── CLAUDE.md        # Backend-specific Claude instructions
+├── frontend/            # React frontend with Vite
+│   ├── src/            # React source code
+│   ├── package.json    # Node.js dependencies
+│   ├── Dockerfile      # Frontend container
+│   └── CLAUDE.md       # Frontend-specific Claude instructions
+├── k8s/                # Kubernetes/OpenShift manifests
+│   ├── base/          # Base kustomize resources
+│   └── overlays/      # Environment-specific overlays
+└── scripts/           # Deployment automation scripts
 ```
 
-## Important Notes
+## Development Commands
 
-- The project is in early development (v0.1.0) with minimal documentation
-- The client handles both stdio and HTTP connections
-- Tool schemas are automatically extracted from MCP servers and passed to Claude
-- The chat loop runs continuously until user types 'quit'
-- FastMCP handles all the complexity of multi-server connections internally
+### Local Development (Node.js/Python)
+```bash
+make setup             # Install all dependencies
+make dev              # Run both frontend and backend
+make dev-frontend     # Run React dev server (port 8080)
+make dev-backend      # Run FastAPI server (port 8000)
+make help             # Show all available commands
+```
+
+### Building
+```bash
+make build                 # Build frontend and container images
+```
+
+### Testing
+```bash
+make test             # Run all tests (frontend and backend)
+make test-frontend    # Run frontend tests only
+make test-backend     # Run backend tests only
+make lint             # Run linting
+```
+
+### Container Registry (Quay.io)
+```bash
+make build                            # Build frontend and container images
+make push                             # Push images to registry
+make TAG=v1.0.0 REGISTRY=quay.io/cfchase # Custom registry and tag
+```
+
+
+### OpenShift Deployment
+```bash
+# Build and push images
+make build && make push
+
+# Deploy to OpenShift (single overlay approach - this is a demo app)
+make deploy           # Deploy to OpenShift
+make undeploy         # Remove deployment
+make kustomize        # Preview manifests
+
+# The deployment uses the 'deploy' overlay in k8s/overlays/deploy/
+# Configure your API key in k8s/overlays/deploy/.env before deploying
+```
+
+**Important**: This is a demo application with a single deployment overlay. 
+Do not create separate dev/prod overlays - use the single 'deploy' overlay for all deployments.
+
+## Configuration Files
+
+### Environment Variables
+- `backend/.env` - Backend configuration for local development only (copy from .env.example)
+- `k8s/overlays/deploy/.env` - Environment variables for OpenShift deployment (used by kustomize secret generator)
+- `frontend/.env` - Frontend configuration (copy from .env.example)
+
+**Important**: All `.env*` files are excluded from Docker builds via `.dockerignore`. Deployment environment variables are managed through kustomize secret generators.
+
+### Key Configuration
+- `vite.config.ts` - Vite configuration with proxy to backend
+- `docker-compose.yml` - Local development with containers
+- `k8s/base/kustomization.yaml` - Base Kubernetes resources
+- `k8s/overlays/deploy/kustomization.yaml` - Deployment configuration
+
+## Development Workflow
+
+1. Make changes to frontend (React) or backend (FastAPI)
+2. Test locally with `make dev`
+3. Build everything with `make build`
+4. Build and push containers with `make build && make push`
+5. Deploy to OpenShift with `make deploy`
+
+## Common Tasks
+
+### Adding New Dependencies
+- Frontend: `cd frontend && npm install <package>`
+- Backend: `cd backend && uv add <package>` (automatically updates pyproject.toml and uv.lock)
+- Backend Dev Dependencies: `cd backend && uv add --dev <package>`
+
+### Updating Container Images
+- Update image tags in `k8s/base/kustomization.yaml`
+- Update tags in overlay files for environment-specific versions
+
+### Managing Secrets in OpenShift
+- **Local Development**: Update `backend/.env` with your local API keys
+- **OpenShift Deployment**: Update `k8s/overlays/deploy/.env` with your API keys
+- Environment variables include:
+  - `API_KEY`: Your LLM provider API key (OpenAI, Anthropic, Google, etc.)
+  - `MODEL`: Model to use (default: gpt-3.5-turbo)
+  - `PROVIDER`: Optional provider override (auto-detected from model name)
+  - `API_BASE_URL`: Optional custom API base URL for OpenAI-compatible endpoints
+  
+**Important**: Secrets are automatically generated by kustomize from the .env files in each overlay directory. The deployment scripts (`make deploy` and `make deploy-prod`) use kustomize's built-in secret generator.
+
+### Customizing for New Projects
+- Update image names in kustomization files
+- Update registry in build script
+- Add API endpoints in `backend/main.py`
+- Update frontend components in `frontend/src/`
+- Update .env files with your actual API keys
+- The template provides a minimal foundation - add your business logic as needed
 
 ## Git Commit Guidelines
 
 When creating commits in this repository:
+- **DO NOT** include Claude Code attribution in commit messages
 - **DO NOT** include Claude-specific references in commit messages
 - **DO NOT** mention "Generated with Claude Code" or similar attributions
 - **DO NOT** add Co-Authored-By references to Claude
